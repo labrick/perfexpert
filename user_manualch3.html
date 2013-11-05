@@ -1,14 +1,17 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"  
-  "http://www.w3.org/TR/html4/loose.dtd">  
-<html > 
+<?xml version="1.0" encoding="iso-8859-1" ?> 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">  
+<!--http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd-->  
+<html xmlns="http://www.w3.org/1999/xhtml"  
+> 
 <head><title>3 Using PerfExpert</title> 
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"> 
-<meta name="generator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)"> 
-<meta name="originator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)"> 
-<!-- html,2,sections+ --> 
-<meta name="src" content="user_manual.tex"> 
-<meta name="date" content="2013-10-14 18:02:00"> 
-<link rel="stylesheet" type="text/css" href="user_manual.css"> 
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" /> 
+<meta name="generator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)" /> 
+<meta name="originator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)" /> 
+<!-- xhtml,2,sections+,html --> 
+<meta name="src" content="user_manual.tex" /> 
+<meta name="date" content="2013-11-04 19:56:00" /> 
+<link rel="stylesheet" type="text/css" href="user_manual.css" /> 
 </head><body 
 >
    <!--l. 1--><div class="crosslinks"><p class="noindent">[<a 
@@ -24,10 +27,11 @@ program<span class="footnote-mark"><a
 href="user_manual8.html#fn1x12"><sup class="textsuperscript">1</sup></a></span><a 
  id="x7-23001f1"></a> .
 This program multiplies two matrices and prints one value from the resulting matrix.
+</p>
 <div class="center" 
 >
 <!--l. 5--><p class="noindent" >
-<!--l. 5--><p class="noindent" >                                            <div class="minipage">PerfExpert may, if you choose to use the full capabilities for automated optimization, change your source
+<!--l. 5--><p class="noindent" >                                            </p><div class="minipage">PerfExpert may, if you choose to use the full capabilities for automated optimization, change your source
 code during the process of optimization. PerfExpert always saves the original file with a different name
 (<span 
 class="cmti-10">e.g.</span>, <span 
@@ -37,7 +41,7 @@ class="cmtt-10">_27301</span>) as well as adding annotations to your source code
 it makes. We cannot, however, fully guarantee that code modifications for optimizations will not break
 your code. We recommend having a full backup of your original source code before using PerfExpert. </div><span 
 class="cmbx-10">CAUTION:</span>
-</div>
+</p></div>
    <h3 class="sectionHead"><span class="titlemark">3.1   </span> <a 
 href="#x7-240003.1" id="x7-240003.1">Environment Configuration</a></h3>
 <!--l. 9--><p class="noindent" >If you are using any of the TACC<span class="footnote-mark"><a 
@@ -46,30 +50,32 @@ href="user_manual9.html#fn2x12"><sup class="textsuperscript">2</sup></a></span><
 machines, load the appropriate modules:
                                                                                          
                                                                                          
+</p>
    <div class="verbatim" id="verbatim-13">
 $&#x00A0;module&#x00A0;load&#x00A0;papi&#x00A0;hpctoolkit&#x00A0;perfexpert
 </div>
 <!--l. 13--><p class="nopar" >
-<!--l. 15--><p class="indent" >   The runs with PerfExpert should be made using a data set size for each compute node which is equivalent to full
+</p><!--l. 15--><p class="indent" >   The runs with PerfExpert should be made using a data set size for each compute node which is equivalent to full
 production runs but for which execution time is not more than about ten or fifteen minutes since PerfExpert will
 run your application multiple times (actually, three times on Stampede) with different performance counters
 enabled. For that reason, before you run PerfExpert you should either request iterative access to computational
 resources (compute node), or modify the job script that you use to run your application and specify a
 running time that is about 3 (for Stampede) or 6 (for Lonestar) times the normal running time of the
 program.
-<!--l. 17--><p class="indent" >   To request iterative access to a compute node on Stampede, please, have a look on the User
+</p><!--l. 17--><p class="indent" >   To request iterative access to a compute node on Stampede, please, have a look on the User
 Guide<span class="footnote-mark"><a 
 href="user_manual10.html#fn3x12"><sup class="textsuperscript">3</sup></a></span><a 
  id="x7-24002f3"></a> .
-<!--l. 19--><p class="indent" >   Below is an example of a job script file modified to use PerfExpert which runs PerfExpert on the application
+</p><!--l. 19--><p class="indent" >   Below is an example of a job script file modified to use PerfExpert which runs PerfExpert on the application
 named my_program and generate the performance analysis report. Adding command line options will cause
 suggestions for bottleneck remediation to be generated and output and/or automatic performance optimization to
 be attempted.
                                                                                          
                                                                                          
-<!--l. 22--><p class="noindent" >_________________________________________________________________________________________
+</p><!--l. 22--><p class="noindent" >_________________________________________________________________________________________
                                                                                          
                                                                                          
+</p>
    <div class="verbatim" id="verbatim-14">
 #!/bin/bash
 &#x00A0;<br />#SBATCH&#x00A0;-J&#x00A0;myMPI&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;#&#x00A0;job&#x00A0;name
@@ -80,12 +86,14 @@ be attempted.
 &#x00A0;<br />perfexpert&#x00A0;0.1&#x00A0;./my_program&#x00A0;&#x00A0;#&#x00A0;run&#x00A0;the&#x00A0;executable&#x00A0;named&#x00A0;my_program
 </div>
 <!--l. 30--><p class="nopar" >_________________________________________________________________________________________
+</p>
    <h3 class="sectionHead"><span class="titlemark">3.2   </span> <a 
 href="#x7-250003.2" id="x7-250003.2">PerfExpert Options</a></h3>
 <!--l. 34--><p class="noindent" >There are several different options for applying PerfExpert. The following summary shows you how to choose the
 options to run PerfExpert to match your needs.
                                                                                          
                                                                                          
+</p>
    <div class="verbatim" id="verbatim-15">
 $&#x00A0;perfexpert&#x00A0;-h
 &#x00A0;<br />Usage:&#x00A0;perfexpert&#x00A0;&#x003C;threshold&#x003E;&#x00A0;[-m&#x00A0;target|-s&#x00A0;sourcefile]&#x00A0;[-r&#x00A0;count]&#x00A0;[-d&#x00A0;database]
@@ -124,12 +132,12 @@ $&#x00A0;perfexpert&#x00A0;-h
 &#x00A0;<br />Use&#x00A0;CC,&#x00A0;CFLAGS&#x00A0;and&#x00A0;LDFLAGS&#x00A0;to&#x00A0;select&#x00A0;compiler&#x00A0;and&#x00A0;compilation/linkage&#x00A0;flags
 </div>
 <!--l. 72--><p class="nopar" >
-<!--l. 74--><p class="indent" >   If you select the <span 
+</p><!--l. 74--><p class="indent" >   If you select the <span 
 class="cmtt-10">-m </span>or <span 
 class="cmtt-10">-s </span>options, PerfExpert will try to automatically optimize your code and show you the
 performance analysis report &amp; the list of suggestion for bottleneck remediation when no automatic optimization is
 possible.
-<!--l. 76--><p class="indent" >   For the <span 
+</p><!--l. 76--><p class="indent" >   For the <span 
 class="cmtt-10">-m </span>or <span 
 class="cmtt-10">-s </span>options, PerfExpert requires access to the application source code. If you select the <span 
 class="cmtt-10">-m </span>option
@@ -142,24 +150,25 @@ class="cmtt-10">-m </span>or <span
 class="cmtt-10">-s </span>options, PerfExpert requires only the binary
 code and will show you only the performance analysis report and the list of suggestion for bottleneck
 remediation.
-<!--l. 78--><p class="indent" >   PerfExpert will run your application multiple times to collect different performance metrics. You may use the <span 
+</p><!--l. 78--><p class="indent" >   PerfExpert will run your application multiple times to collect different performance metrics. You may use the <span 
 class="cmtt-10">-b</span>
+                                                                                         
+                                                                                         
 (or <span 
 class="cmtt-10">-a</span>) options if you want to execute a program or script before (or after) each run. The argument
-                                                                                         
-                                                                                         
 <span 
 class="cmtt-10">program</span><span 
 class="cmtt-10">_executable </span>should be the filename of the application you want to analyze, not a shell script,
 otherwise, PerfExpert will analyze the performance of the shell script instead of the performance of you
 application.
-<!--l. 80--><p class="indent" >   Use the <span 
+</p><!--l. 80--><p class="indent" >   Use the <span 
 class="cmtt-10">-r </span>option to select the number of recommendations for optimization you want for each code section
 which is a performance bottleneck.
+</p>
 <div class="center" 
 >
 <!--l. 82--><p class="noindent" >
-<!--l. 82--><p class="noindent" >                                            <div class="minipage">If your program takes any argument that starts with a &#8220;<span 
+<!--l. 82--><p class="noindent" >                                            </p><div class="minipage">If your program takes any argument that starts with a &#8220;<span 
 class="cmtt-10">-</span>&#8221; signal PerfExpert will interpret this as a
 command line option. To help PerfExpert handle <span 
 class="cmtt-10">program</span><span 
@@ -167,49 +176,53 @@ class="cmtt-10">_arguments </span>correctly, use quotes and add a
 space before the program&#8217;s arguments (e.g., &#8220;  <span 
 class="cmtt-10">-s 50</span>&#8221;).                                                             </div><span 
 class="cmbx-10">CAUTION:</span>
-</div>
+</p></div>
 <div class="center" 
 >
 <!--l. 84--><p class="noindent" >
-<!--l. 84--><p class="noindent" >                                            <div class="minipage">In case you are trying to optimize a MPI application, you should use the <span 
+<!--l. 84--><p class="noindent" >                                            </p><div class="minipage">In case you are trying to optimize a MPI application, you should use the <span 
 class="cmtt-10">-p </span>option to specify the MPI
 launcher and also it&#8217;s arguments.                                                                                          </div><span 
 class="cmbx-10">CAUTION:</span>
-</div>
+</p></div>
 <!--l. 86--><p class="indent" >   For this guide, using the OpenMP simple matrix multiply code, we will use the following command line
 options:
                                                                                          
                                                                                          
+</p>
    <div class="verbatim" id="verbatim-16">
 $&#x00A0;OMP_NUM_THREADS=16&#x00A0;CFLAGS="-fopenmp"&#x00A0;perfexpert&#x00A0;-s&#x00A0;mm_omp.c&#x00A0;0.05&#x00A0;mm_omp
 </div>
 <!--l. 90--><p class="nopar" >
-<!--l. 92--><p class="indent" >   which executes PerfExpert&#8217;s automatic optimizations and will also generate an OpenMP-enabled binary which
+</p><!--l. 92--><p class="indent" >   which executes PerfExpert&#8217;s automatic optimizations and will also generate an OpenMP-enabled binary which
 will run with 16 threads. In this case, PerfExpert will compile the <span 
 class="cmtt-10">mm</span><span 
 class="cmtt-10">_omp.c </span>code using the system&#8217;s default
 compiler, which is GCC in the case of Stampede. PerfExpert will take into consideration only code fragments (loops
 and functions) that take more 5% of the runtime.
-<!--l. 94--><p class="indent" >   To select a different compiler, you should specify the <span 
+</p><!--l. 94--><p class="indent" >   To select a different compiler, you should specify the <span 
 class="cmtt-10">CC </span>environment variable as below:
                                                                                          
                                                                                          
+</p>
    <div class="verbatim" id="verbatim-17">
 $&#x00A0;CC="icc"&#x00A0;OMP_NUM_THREADS=16&#x00A0;CFLAGS="-fopenmp"&#x00A0;perfexpert&#x00A0;-s&#x00A0;mm_omp.c&#x00A0;0.05&#x00A0;mm_omp
 </div>
 <!--l. 98--><p class="nopar" >
-<!--l. 100--><p class="indent" >   If you do not want to have PerfExpert trying to optimize the application automatically, just compile your
+</p><!--l. 100--><p class="indent" >   If you do not want to have PerfExpert trying to optimize the application automatically, just compile your
 program and run the following command:
                                                                                          
                                                                                          
+</p>
    <div class="verbatim" id="verbatim-18">
 $&#x00A0;OMP_NUM_THREADS=16&#x00A0;perfexpert&#x00A0;0.05&#x00A0;mm_omp
 </div>
 <!--l. 104--><p class="nopar" >
+</p>
 <div class="center" 
 >
 <!--l. 106--><p class="noindent" >
-<!--l. 106--><p class="noindent" >                                            <div class="minipage">If  the  command  line  you  use  to  run  PerfExpert  includes  the  MPI  launcher  (<span 
+<!--l. 106--><p class="noindent" >                                            </p><div class="minipage">If  the  command  line  you  use  to  run  PerfExpert  includes  the  MPI  launcher  (<span 
 class="cmti-10">i.e.</span>,  <span 
 class="cmtt-10">mpirun -n 2</span>
 <span 
@@ -225,14 +238,16 @@ PerfExpert to set the MPI launcher and all its arguments (<span
 class="cmti-10">e.g.</span>, <span 
 class="cmtt-10">-p "mpirun -n 16"</span>).                     </div><span 
 class="cmbx-10">WARNING:</span>
-</div>
+</p></div>
 <!--l. 108--><p class="noindent" >
+</p>
    <h3 class="sectionHead"><span class="titlemark">3.3   </span> <a 
 href="#x7-260003.3" id="x7-260003.3">The Performance Analysis Report</a></h3>
 <!--l. 110--><p class="noindent" >This section explains the performance analysis report and the metrics shown by PerfExpert. We discuss the
 following sample output:
                                                                                          
                                                                                          
+</p>
    <div class="verbatim" id="verbatim-19">
 Loop&#x00A0;in&#x00A0;function&#x00A0;compute()&#x00A0;(99.9%&#x00A0;of&#x00A0;the&#x00A0;total&#x00A0;runtime)
 &#x00A0;<br />=========================================================================
@@ -266,8 +281,9 @@ Loop&#x00A0;in&#x00A0;function&#x00A0;compute()&#x00A0;(99.9%&#x00A0;of&#x00A0;t
 &#x00A0;<br />&#x00A0;&#x00A0;&#x00A0;-&#x00A0;slow&#x00A0;FP&#x00A0;instr&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;:&#x00A0;&#x00A0;0.0&#x00A0;&#x003E;
 </div>
 <!--l. 143--><p class="nopar" >
-<!--l. 145--><p class="indent" >   Apart from the total running time, PerfExpert performance analysis report includes, for each code
+</p><!--l. 145--><p class="indent" >   Apart from the total running time, PerfExpert performance analysis report includes, for each code
 segment:
+</p>
      <ul class="itemize1">
      <li class="itemize">Instruction execution ratios (with respect to total instructions);
      </li>
@@ -276,22 +292,22 @@ segment:
      <li class="itemize">Overall performance;
      </li>
      <li class="itemize">Local Cycles Per Instruction (LCPI) values for the cost of memory accesses.</li></ul>
+                                                                                         
+                                                                                         
 <!--l. 154--><p class="indent" >   The program composition part shows what percentage of the total instructions were computational
 (floating-point instructions) and what percentage were instructions that accessed data. This gives a rough estimate
-                                                                                         
-                                                                                         
 in trying to understand whether optimizing the program for either data accesses or floating-point instructions would
 have a significant impact on the total running time of the program.
-<!--l. 156--><p class="indent" >   The PerfExpert performance analysis report also shows the GFLOPs rating, which is the number of
+</p><!--l. 156--><p class="indent" >   The PerfExpert performance analysis report also shows the GFLOPs rating, which is the number of
 floating-point operations executed per second in multiples of 109. The value for this metric is displayed as a
 percentage of the maximum possible GFLOP value for that particular machine. Although it is rare for real-world
 programs to match even 50% of the maximum value, this metric can serve as an estimate of how efficiently the code
 performs computations.
-<!--l. 158--><p class="indent" >   The next, and major, section of the PerfExpert performance analysis report shows the LCPI values, which is the
+</p><!--l. 158--><p class="indent" >   The next, and major, section of the PerfExpert performance analysis report shows the LCPI values, which is the
 ratio of cycles spent in the code segment for a specific category, divided by the total number of instructions in the
 code segment. The overall value is the ratio of the total cycles taken by the code segment to the total instructions
 executed in the code segment.
-<!--l. 160--><p class="indent" >   Generally, a value of 0.5 or lower for an LCPI is considered to be good. However, it is only necessary to look at
+</p><!--l. 160--><p class="indent" >   Generally, a value of 0.5 or lower for an LCPI is considered to be good. However, it is only necessary to look at
 the ratings (<span 
 class="cmtt-10">good</span>, <span 
 class="cmtt-10">okay</span>, &#x2026;, <span 
@@ -300,10 +316,10 @@ data accesses, instruction accesses, data TLB accesses, instruction TLB accesses
 computations. Without getting into the details of instruction operation on Intel and AMD chips, one can say that
 these six categories record performance in non-overlapping ways. That is, they roughly represent six separate
 categories of performance for any application.
-<!--l. 162--><p class="indent" >   The LCPI value is a good indicator of the cost arising from instructions of the specific category. Hence,
+</p><!--l. 162--><p class="indent" >   The LCPI value is a good indicator of the cost arising from instructions of the specific category. Hence,
 the higher the LCPI, the slower the program. The following is a brief description of each of these
 categories:
-     <dl class="description"><dt class="description">
+     </p><dl class="description"><dt class="description">
 <span 
 class="cmbx-10">Data accesses:</span> </dt><dd 
 class="description">                                                                                                       <br 
@@ -341,33 +357,35 @@ class="cmti-10">e.g.</span>, add, subtract
 and multiply instructions) and on floating-point instructions that take longer to execute (<span 
 class="cmti-10">e.g.</span>, divide and
 square-root instructions).
-<!--l. 181--><p class="indent" >   In each case, the classification (data access, instruction access, data TLB, etc.) is shown so that it is easy to
+                                                                                         
+                                                                                         
+</p><!--l. 181--><p class="indent" >   In each case, the classification (data access, instruction access, data TLB, etc.) is shown so that it is easy to
 understand which category is responsible for the performance slowdown. For instance if the overall
-                                                                                         
-                                                                                         
 CPI is &#8220;<span 
 class="cmtt-10">poor</span>&#8221; and the data access LCPI is high, then you should concentrate on access to program
 variables and memory. Additional LCPI details help in relating performance numbers to the process
 architecture.
+</p>
 <div class="center" 
 >
 <!--l. 183--><p class="noindent" >
-<!--l. 183--><p class="noindent" >                                            <div class="minipage">When PerfExpert runs with automatic performance optimization enabled the performance analysis
+<!--l. 183--><p class="noindent" >                                            </p><div class="minipage">When PerfExpert runs with automatic performance optimization enabled the performance analysis
 report shown reflects the performance of the code after all possible automatic optimizations have been
 applied.                                                                                                                            </div><span 
 class="cmbx-10">IMPORTANT:</span>
-</div>
+</p></div>
 <div class="center" 
 >
 <!--l. 185--><p class="noindent" >
-<!--l. 185--><p class="noindent" >                                            <div class="minipage">PerfExpert creates a <span 
+<!--l. 185--><p class="noindent" >                                            </p><div class="minipage">PerfExpert creates a <span 
 class="cmtt-10">.perfexpert-temp.XXXXXX </span>directory for each time it is executed. This directory
 has one subdirectory for each optimization cycle PerfExpert completed or attempted. Each subdirectory
 includes  the  intermediate  files  PerfExpert  generated  during  each  cycle,  including  the  performance
 analysis reports.                                                                                                                </div><span 
 class="cmbx-10">NOTICE:</span>
-</div>
+</p></div>
 <!--l. 187--><p class="noindent" >
+</p>
    <h3 class="sectionHead"><span class="titlemark">3.4   </span> <a 
 href="#x7-270003.4" id="x7-270003.4">List of Recommendations for Optimization</a></h3>
 <!--l. 189--><p class="noindent" >If PerfExpert runs with <span 
@@ -376,6 +394,7 @@ each bottleneck. This option is always available, it does not depend on which of
 A list of suggestions for this example is shown below:
                                                                                          
                                                                                          
+</p>
    <div class="verbatim" id="verbatim-20">
 #--------------------------------------------------
 &#x00A0;<br />#&#x00A0;Recommendations&#x00A0;for&#x00A0;/work/02204/fialho/tutorial/3/mm_omp.c:14
@@ -427,11 +446,12 @@ A list of suggestions for this example is shown below:
 <!--l. 238--><p class="nopar" >
                                                                                          
                                                                                          
+</p>
    <!--l. 1--><div class="crosslinks"><p class="noindent">[<a 
 href="user_manualch2.html" >prev</a>] [<a 
 href="user_manualch2.html#tailuser_manualch2.html" >prev-tail</a>] [<a 
 href="user_manualch3.html" >front</a>] [<a 
 href="user_manual.html#user_manualch5.html" >up</a>] </p></div>
 <!--l. 1--><p class="indent" >   <a 
- id="tailuser_manualch3.html"></a>   
+ id="tailuser_manualch3.html"></a>  </p> 
 </body></html> 

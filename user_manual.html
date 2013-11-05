@@ -1,17 +1,20 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"  
-  "http://www.w3.org/TR/html4/loose.dtd">  
-<html > 
+<?xml version="1.0" encoding="iso-8859-1" ?> 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">  
+<!--http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd-->  
+<html xmlns="http://www.w3.org/1999/xhtml"  
+> 
 <head><title>PerfExpert v4.0
 An Easy-to-Use Automatic Performance Diagnosis
 and Optimization Tool for HPC Applications
 User Manual </title> 
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"> 
-<meta name="generator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)"> 
-<meta name="originator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)"> 
-<!-- html,2,sections+ --> 
-<meta name="src" content="user_manual.tex"> 
-<meta name="date" content="2013-10-14 18:02:00"> 
-<link rel="stylesheet" type="text/css" href="user_manual.css"> 
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" /> 
+<meta name="generator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)" /> 
+<meta name="originator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)" /> 
+<!-- xhtml,2,sections+,html --> 
+<meta name="src" content="user_manual.tex" /> 
+<meta name="date" content="2013-11-04 19:56:00" /> 
+<link rel="stylesheet" type="text/css" href="user_manual.css" /> 
 </head><body 
 >
    <div class="maketitle">
@@ -115,30 +118,38 @@ href="user_manualch4.html#x11-310004.3" id="QQ2-11-31">MACPO Metrics</a></span>
 href="user_manualch4.html#x11-340004.4" id="QQ2-11-34">Improving Application Performance by Interpreting MACPO Metrics</a></span>
 <br />   <span class="chapterToc" >5 <a 
 href="user_manualch5.html#x14-350005" id="QQ2-14-35">List of Automatic Optimizations PerfExpert Supports</a></span>
+<br />   &#x00A0;<span class="sectionToc" >5.1 <a 
+href="user_manualch5.html#x14-360005.1" id="QQ2-14-36">Loop Interchange</a></span>
+<br />   &#x00A0;<span class="sectionToc" >5.2 <a 
+href="user_manualch5.html#x14-370005.2" id="QQ2-14-37">Loop Tiling (aka Loop Blocking)</a></span>
+<br />   &#x00A0;<span class="sectionToc" >5.3 <a 
+href="user_manualch5.html#x14-380005.3" id="QQ2-14-38">Loop Fission</a></span>
 <br />   <span class="chapterToc" >6 <a 
-href="user_manualch6.html#x15-360006" id="QQ2-15-36">PerfExpert for Advanced Users</a></span>
+href="user_manualch6.html#x15-390006" id="QQ2-15-39">PerfExpert for Advanced Users</a></span>
 <br />   &#x00A0;<span class="sectionToc" >6.1 <a 
-href="user_manualch6.html#x15-370006.1" id="QQ2-15-37">The Big Picture</a></span>
+href="user_manualch6.html#x15-400006.1" id="QQ2-15-40">The Big Picture</a></span>
 <br />   &#x00A0;<span class="sectionToc" >6.2 <a 
-href="user_manualch6.html#x15-380006.2" id="QQ2-15-38">Tools Which Are Part of PerfExpert</a></span>
+href="user_manualch6.html#x15-410006.2" id="QQ2-15-42">Tools Which Are Part of PerfExpert</a></span>
 <br />   &#x00A0;<span class="sectionToc" >6.3 <a 
-href="user_manualch6.html#x15-700006.3" id="QQ2-15-70">PerfExpert Temporary Directory</a></span>
+href="user_manualch6.html#x15-750006.3" id="QQ2-15-78">PerfExpert Temporary Directory</a></span>
 <br />   &#x00A0;<span class="sectionToc" >6.4 <a 
-href="user_manualch6.html#x15-710006.4" id="QQ2-15-71">Analyzing the Results from a Previous PerfExpert Run</a></span>
+href="user_manualch6.html#x15-760006.4" id="QQ2-15-79">Analyzing the Results from a Previous PerfExpert Run</a></span>
 <br />   &#x00A0;<span class="sectionToc" >6.5 <a 
-href="user_manualch6.html#x15-720006.5" id="QQ2-15-72">Executing on the Intel<sup class="textsuperscript"><span 
+href="user_manualch6.html#x15-770006.5" id="QQ2-15-80">Executing on the Intel<sup class="textsuperscript"><span 
 class="cmr-9">®;</span></sup> Xeon Phi<sup class="textsuperscript"><sup class="textsuperscript"><span 
 class="cmr-9">TM</span></sup></sup> Coprocessors</a></span>
 <br />   <span class="chapterToc" >7 <a 
-href="user_manualch7.html#x16-730007" id="QQ2-16-73">Extending PerfExpert</a></span>
+href="user_manualch7.html#x16-780007" id="QQ2-16-81">Extending PerfExpert</a></span>
 <br />   &#x00A0;<span class="sectionToc" >7.1 <a 
-href="user_manualch7.html#x16-740007.1" id="QQ2-16-74">PerfExpert Database Layout</a></span>
+href="user_manualch7.html#x16-790007.1" id="QQ2-16-82">PerfExpert Database Layout</a></span>
 <br />   &#x00A0;<span class="sectionToc" >7.2 <a 
-href="user_manualch7.html#x16-750007.2" id="QQ2-16-75">Adding Metrics to PerfExpert</a></span>
+href="user_manualch7.html#x16-800007.2" id="QQ2-16-83">Adding Metrics to PerfExpert</a></span>
 <br />   &#x00A0;<span class="sectionToc" >7.3 <a 
-href="user_manualch7.html#x16-780007.3" id="QQ2-16-78">New Recommendations for Optimization</a></span>
+href="user_manualch7.html#x16-830007.3" id="QQ2-16-86">New Recommendations for Optimization</a></span>
 <br />   &#x00A0;<span class="sectionToc" >7.4 <a 
-href="user_manualch7.html#x16-790007.4" id="QQ2-16-79">Enabling New Automatic Optimizations</a></span>
+href="user_manualch7.html#x16-840007.4" id="QQ2-16-87">Enabling New Automatic Optimizations</a></span>
+                                                                                         
+                                                                                         
    </div>
                                                                                          
                                                                                          

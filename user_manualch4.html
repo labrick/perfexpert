@@ -1,14 +1,17 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"  
-  "http://www.w3.org/TR/html4/loose.dtd">  
-<html > 
+<?xml version="1.0" encoding="iso-8859-1" ?> 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">  
+<!--http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd-->  
+<html xmlns="http://www.w3.org/1999/xhtml"  
+> 
 <head><title>4 Using MACPO</title> 
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"> 
-<meta name="generator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)"> 
-<meta name="originator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)"> 
-<!-- html,2,sections+ --> 
-<meta name="src" content="user_manual.tex"> 
-<meta name="date" content="2013-10-14 18:02:00"> 
-<link rel="stylesheet" type="text/css" href="user_manual.css"> 
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" /> 
+<meta name="generator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)" /> 
+<meta name="originator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)" /> 
+<!-- xhtml,2,sections+,html --> 
+<meta name="src" content="user_manual.tex" /> 
+<meta name="date" content="2013-11-04 19:56:00" /> 
+<link rel="stylesheet" type="text/css" href="user_manual.css" /> 
 </head><body 
 >
    <!--l. 1--><div class="crosslinks"><p class="noindent">[<a 
@@ -22,13 +25,15 @@ href="#x11-280004" id="x11-280004">Using MACPO</a></h2>
 that has been built to assist performance tuning of single- and multi-threaded C, C++ or Fortran
 applications. More specifically, MACPO is designed to provide insight into an application&#8217;s memory usage
 patterns.
+</p>
    <h3 class="sectionHead"><span class="titlemark">4.1   </span> <a 
 href="#x11-290004.1" id="x11-290004.1">A Quick Demonstration</a></h3>
 <!--l. 5--><p class="noindent" >To demonstrate the functioning of MACPO, let&#8217;s consider an example program. This program uses Pthreads to
 calculate the value of Pi using the Monte-Carlo method.
-<!--l. 7--><p class="indent" >   The following code shows the function that is executed by each thread:
+</p><!--l. 7--><p class="indent" >   The following code shows the function that is executed by each thread:
                                                                                          
                                                                                          
+</p>
    <div class="verbatim" id="verbatim-21">
 void*&#x00A0;thread_func&#x00A0;(void*&#x00A0;arg)&#x00A0;{
 &#x00A0;<br />&#x00A0;&#x00A0;int&#x00A0;idx,&#x00A0;i,&#x00A0;repeat;
@@ -48,35 +53,39 @@ void*&#x00A0;thread_func&#x00A0;(void*&#x00A0;arg)&#x00A0;{
 &#x00A0;<br />}
 </div>
 <!--l. 26--><p class="nopar" >
-<!--l. 28--><p class="indent" >   To compile the application using MACPO, indicating that we are interested in understanding the performance
+</p><!--l. 28--><p class="indent" >   To compile the application using MACPO, indicating that we are interested in understanding the performance
 metrics associated with the <span 
 class="cmtt-10">thread</span><span 
 class="cmtt-10">_func </span>function, run the following commands:
                                                                                          
                                                                                          
+</p>
    <div class="verbatim" id="verbatim-22">
 $&#x00A0;macpo.sh&#x00A0;--macpo:function=thread_func&#x00A0;-c&#x00A0;monte-carlo.cc
 &#x00A0;<br />$&#x00A0;macpo.sh&#x00A0;--macpo:function=thread_func&#x00A0;monte-carlo.o&#x00A0;-o&#x00A0;monte-carlo&#x00A0;-lpthread&#x00A0;-lrt
 </div>
 <!--l. 32--><p class="nopar" >
-<!--l. 34--><p class="indent" >   Runtime logs (macpo.out) are produced when the application is run:
+</p><!--l. 34--><p class="indent" >   Runtime logs (macpo.out) are produced when the application is run:
                                                                                          
                                                                                          
+</p>
    <div class="verbatim" id="verbatim-23">
 $&#x00A0;./monte-carlo
 </div>
 <!--l. 37--><p class="nopar" >
-<!--l. 39--><p class="indent" >   To print performance metrics, use the <span 
+</p><!--l. 39--><p class="indent" >   To print performance metrics, use the <span 
 class="cmtt-10">macpo-analyze </span>program.
                                                                                          
                                                                                          
+</p>
    <div class="verbatim" id="verbatim-24">
 $&#x00A0;macpo-analyze&#x00A0;macpo.out
 </div>
 <!--l. 42--><p class="nopar" >
-<!--l. 44--><p class="indent" >   This will produce an output that is similar to the one shown below:
+</p><!--l. 44--><p class="indent" >   This will produce an output that is similar to the one shown below:
                                                                                          
                                                                                          
+</p>
    <div class="verbatim" id="verbatim-25">
 Var&#x00A0;"counts",&#x00A0;seen&#x00A0;1668&#x00A0;times,&#x00A0;estimated&#x00A0;to&#x00A0;cost&#x00A0;147.12&#x00A0;cycles&#x00A0;on&#x00A0;every&#x00A0;access.
 &#x00A0;<br />Stride&#x00A0;of&#x00A0;0&#x00A0;cache&#x00A0;lines&#x00A0;was&#x00A0;observed&#x00A0;1585&#x00A0;times&#x00A0;(100.00%).
@@ -90,7 +99,7 @@ Var&#x00A0;"counts",&#x00A0;seen&#x00A0;1668&#x00A0;times,&#x00A0;estimated&#x00
 &#x00A0;<br />Level&#x00A0;3&#x00A0;data&#x00A0;cache&#x00A0;reuse&#x00A0;factor&#x00A0;=&#x00A0;0.0%&#x00A0;&#x00A0;[&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;]
 </div>
 <!--l. 56--><p class="nopar" >
-<!--l. 58--><p class="indent" >   The output shows the estimated cost of memory accesses (147.12 cycles) to the variable <span 
+</p><!--l. 58--><p class="indent" >   The output shows the estimated cost of memory accesses (147.12 cycles) to the variable <span 
 class="cmtt-10">counts </span>in terms of cycles per
 access<span class="footnote-mark"><a 
 href="user_manual12.html#fn1x19"><sup class="textsuperscript">1</sup></a></span><a 
@@ -109,11 +118,13 @@ cache, which may be shared by other cores, accesses a different cache line. This
 time of the <span 
 class="cmtt-10">thread</span><span 
 class="cmtt-10">_func </span>routine from 9.14s to 3.17s.
-<!--l. 60--><p class="indent" >   The other information provided by MACPO is discussed below in Section <a 
+</p><!--l. 60--><p class="indent" >   The other information provided by MACPO is discussed below in Section <a 
 href="#x11-310004.3">4.3<!--tex4ht:ref: sec:macpo-metrics --></a>.
+</p>
    <h3 class="sectionHead"><span class="titlemark">4.2   </span> <a 
 href="#x11-300004.2" id="x11-300004.2">When to Use MACPO</a></h3>
 <!--l. 64--><p class="noindent" >MACPO may be useful to you in any of the following situations:
+</p>
      <ul class="itemize1">
      <li class="itemize">Perfexpert reports that L2 or L3 data access LCPI is high.
      </li>
@@ -125,24 +136,27 @@ applicable to your program. However, for such programs, MACPO metrics may not be
 directly.
                                                                                          
                                                                                          
-<!--l. 74--><p class="noindent" >
+</p><!--l. 74--><p class="noindent" >
+</p>
    <h3 class="sectionHead"><span class="titlemark">4.3   </span> <a 
 href="#x11-310004.3" id="x11-310004.3">MACPO Metrics</a></h3>
 <!--l. 77--><p class="noindent" >Performance information shown by MACPO can be grouped into two parts. The first part shows information that is
 applicable to the entire function being profiled. The second part shows information that is specific to the important
 variables in the function.
-<!--l. 79--><p class="noindent" >
+</p><!--l. 79--><p class="noindent" >
+</p>
    <h4 class="subsectionHead"><span class="titlemark">4.3.1   </span> <a 
 href="#x11-320004.3.1" id="x11-320004.3.1">Function-wide Performance Metrics</a></h4>
 <!--l. 80--><p class="noindent" >Currently, function-wide information only shows the number of streams that were seen while compiling
 the function. A stream is a variable or data structure that may be accessed repeatedly in a uniform
 manner.
-<!--l. 82--><p class="noindent" >
+</p><!--l. 82--><p class="noindent" >
+</p>
    <h4 class="subsectionHead"><span class="titlemark">4.3.2   </span> <a 
 href="#x11-330004.3.2" id="x11-330004.3.2">Variable-specific Performance Metrics</a></h4>
 <!--l. 83--><p class="noindent" >For each variable that is encountered a significant number of times, MACPO shows the following performance
 metrics:
-     <dl class="description"><dt class="description">
+     </p><dl class="description"><dt class="description">
 <span 
 class="cmbx-10">Estimated average cycles per access</span> </dt><dd 
 class="description">                                                                          <br 
@@ -175,6 +189,8 @@ class="newline" />Most modern processors exhibit non-uniform memory access costs
      on whether the processor that hosts the memory controller managing the memory address is the same
      as the processor accessing the memory address. This metric displays the percentage of observed memory
      accesses that conflicted with another memory access to the same variable at the NUMA level.
+                                                                                         
+                                                                                         
      </dd><dt class="description">
 <span 
 class="cmbx-10">Reuse factors for L1, L2 and L3 data caches</span> </dt><dd 
@@ -182,16 +198,15 @@ class="description">                                                            
 class="newline" />From the observed reuse distance and a probabilistic model of set-associative caches, MACPO estimates
      whether a given memory access would be served out of L1 or would overflow the size of the cache,
      resulting in the memory access being served out of a higher (L2 or possibly L3) level of cache. This
-                                                                                         
-                                                                                         
      analysis permits MACPO to calculate the multicore reuse factor, which is a count of the number of
      times a given cache line is reused in a specific level of the cache.</dd></dl>
 <!--l. 102--><p class="noindent" >
+</p>
    <h3 class="sectionHead"><span class="titlemark">4.4   </span> <a 
 href="#x11-340004.4" id="x11-340004.4">Improving Application Performance by Interpreting MACPO Metrics</a></h3>
 <!--l. 104--><p class="noindent" >This section explains how to translate the MACPO metrics into source code changes to improve the performance of
 your application.
-     <dl class="description"><dt class="description">
+     </p><dl class="description"><dt class="description">
 <span 
 class="cmbx-10">Estimated average cycles per access</span> </dt><dd 
 class="description">                                                                          <br 
@@ -236,5 +251,5 @@ href="user_manualch3.html#tailuser_manualch3.html" >prev-tail</a>] [<a
 href="user_manualch4.html" >front</a>] [<a 
 href="user_manual.html# " >up</a>] </p></div>
 <!--l. 1--><p class="indent" >   <a 
- id="tailuser_manualch4.html"></a>   
+ id="tailuser_manualch4.html"></a>  </p> 
 </body></html> 
