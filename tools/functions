@@ -1,0 +1,43 @@
+./common/perfexpert_list.h:71:    item->next = item->prev = NULL;
+./common/perfexpert_list.h:102:    item->prev->next = item->next;
+./common/perfexpert_list.h:103:    item->next->prev = item->prev;
+./common/perfexpert_list.h:106:    return (perfexpert_list_item_t *)item->prev;
+./common/perfexpert_list.h:115:    item->prev = sentinel->prev;
+./common/perfexpert_list.h:117:    item->next = sentinel;
+./recommender/recommender_input.c:93:			// 注意：item->functions和segments一样的类型
+./recommender/recommender_input.c:94:            perfexpert_list_construct((perfexpert_list_t *)&(item->functions));
+./recommender/recommender_input.c:95:            item->function_name = NULL;
+./recommender/recommender_input.c:96:            item->section_info = NULL;
+./recommender/recommender_input.c:97:            item->extra_info = NULL;
+./recommender/recommender_input.c:98:            item->filename = NULL;
+./recommender/recommender_input.c:99:            item->type = PERFEXPERT_HOTSPOT_UNKNOWN;
+./recommender/recommender_input.c:100:            item->rowid = 0;
+./recommender/recommender_input.c:101:            item->runtime = 0.0;
+./recommender/recommender_input.c:102:            item->loopdepth = 0;
+./recommender/recommender_input.c:103:            item->importance = 0.0;
+./recommender/recommender_input.c:104:            item->line_number = 0;
+./recommender/recommender_input.c:148:            item->rowid = rowid;
+./recommender/recommender_input.c:180:            PERFEXPERT_ALLOC(char, item->filename, (strlen(node->value) + 1));
+./recommender/recommender_input.c:181:            strcpy(item->filename, node->value);
+./recommender/recommender_input.c:183:                _MAGENTA("filename:"), item->filename));
+./recommender/recommender_input.c:187:            item->line_number = atoi(node->value);
+./recommender/recommender_input.c:189:                _MAGENTA("line number:"), item->line_number));
+./recommender/recommender_input.c:193:            item->type = atoi(node->value);
+./recommender/recommender_input.c:195:                _MAGENTA("type:"), item->type));
+./recommender/recommender_input.c:199:            PERFEXPERT_ALLOC(char, item->extra_info, (strlen(node->value) + 1));
+./recommender/recommender_input.c:200:            strcpy(item->extra_info, node->value);
+./recommender/recommender_input.c:202:                _MAGENTA("extra info:"), item->extra_info));
+./recommender/recommender_input.c:206:            item->importance = atof(node->value);
+./recommender/recommender_input.c:208:                _MAGENTA("importance:"), item->importance));
+./recommender/recommender_input.c:212:            PERFEXPERT_ALLOC(char, item->section_info,
+./recommender/recommender_input.c:214:            strcpy(item->section_info, node->value);
+./recommender/recommender_input.c:216:                _MAGENTA("section info:"), item->section_info));
+./recommender/recommender_input.c:226:            PERFEXPERT_ALLOC(char, item->function_name,
+./recommender/recommender_input.c:228:            strcpy(item->function_name, node->value);
+./recommender/recommender_input.c:230:                _MAGENTA("function name:"), item->function_name));
+./recommender/recommender_input.c:234:            item->runtime = atof(node->value);
+./recommender/recommender_input.c:236:                _MAGENTA("runtime:"), item->runtime));
+./recommender/recommender_input.c:240:            item->loopdepth = atoi(node->value);
+./recommender/recommender_input.c:242:                _MAGENTA("loop depth:"), item->loopdepth));
+./recommender/recommender_input.c:303:        OUTPUT_VERBOSE((4, "      %s (line %d)", _YELLOW(item->filename),
+./recommender/recommender_input.c:304:            item->line_number));

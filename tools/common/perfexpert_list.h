@@ -107,8 +107,10 @@ static inline perfexpert_list_item_t *perfexpert_list_remove_item(
 }
 
 /* perfexpert_list_append */
+// 在list成员sentinel之前插入一个item，注意是双向链表插入
 static inline void perfexpert_list_append(perfexpert_list_t *list,
     perfexpert_list_item_t *item) {
+	// 创建一个新的item条目sentinel指针指向list的item成员
     perfexpert_list_item_t *sentinel = &(list->sentinel);
     item->prev = sentinel->prev;
     sentinel->prev->next = item;

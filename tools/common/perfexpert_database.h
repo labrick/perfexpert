@@ -186,6 +186,7 @@ static inline int perfexpert_database_connect(sqlite3 **db, const char *file) {
 }
 
 /* perfexpert_database_get_int */
+// 也就变更了下**val的值的数据类型
 static inline int perfexpert_database_get_int(void *var, int count, char **val,
     char **names) {
     int *temp = (int *)var;

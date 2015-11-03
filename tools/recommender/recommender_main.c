@@ -48,31 +48,34 @@ int main(int argc, char** argv) {
     /* Set default values for globals */
     globals = (globals_t) {
         .verbose          = 0,                // int
-        .inputfile        = NULL,             // char *
-        .inputfile_FP     = NULL,             // FILE *
+        .inputfile        = NULL,             // char *		// 文件名
+        .inputfile_FP     = NULL,             // FILE *		// 文件指针
         .outputfile       = NULL,             // char *
         .outputfile_FP    = stdout,           // FILE *
         .outputmetrics    = NULL,             // char *
         .outputmetrics_FP = NULL,             // FILE *
-        .dbfile           = NULL,             // char *
+        .dbfile           = NULL,             // char *		// SQL语句文件
         .workdir          = NULL,             // char *
-        .pid              = (long)getpid(),   // long int
+        .pid              = (long)getpid(),   // long int	// 这个pid的意义何在？
         .colorful         = PERFEXPERT_FALSE, // int
-        .metrics_file     = NULL,             // char *
-        .metrics_table    = METRICS_TABLE,    // char *
-        .rec_count        = 3                 // int
+        .metrics_file     = NULL,             // char *		// 什么指标？？
+        .metrics_table    = METRICS_TABLE,    // char *		// 就是PMU内容吧？
+        .rec_count        = 3                 // int		// 这个啥？
     };
 
     /* Parse command-line parameters */
+	// 哦哦，分析该程序所给的参数，嗯嗯！是的，right
     if (PERFEXPERT_SUCCESS != parse_cli_params(argc, argv)) {
         OUTPUT(("%s", _ERROR("Error: parsing command line arguments")));
         return PERFEXPERT_ERROR;
     }
 
     /* Create the list of code bottlenecks */
+	// 内联函数中只是简单的将segments的sentinel前后指针都指向自身
     perfexpert_list_construct(&segments);
     
     /* Open input file */
+	// 也就是打开所要分析的程序的文件
     OUTPUT_VERBOSE((3, "   %s (%s)", _YELLOW("performance analysis input"),
         globals.inputfile));
     if (NULL == (globals.inputfile_FP = fopen(globals.inputfile, "r"))) {
@@ -96,6 +99,7 @@ int main(int argc, char** argv) {
     }
 
     /* If necessary open outputmetrics_FP */
+	// 输出指标到指标文件？？？这个的意义何在？
     if (NULL != globals.outputmetrics) {
         OUTPUT_VERBOSE((7, "   %s (%s)", _YELLOW("printing metrics to file"),
             globals.outputmetrics));
@@ -116,10 +120,12 @@ int main(int argc, char** argv) {
     }
 
     /* Parse metrics file if 'm' is defined, this will create a temp table */
+	// 指标文件的意义有待于确定
     if (NULL != globals.metrics_file) {
         PERFEXPERT_ALLOC(char, globals.metrics_table, (strlen("metrics_") + 6));
         sprintf(globals.metrics_table, "metrics_%d", (int)getpid());
 
+		// 也就是以metrics文件中的变量建立了表格
         if (PERFEXPERT_SUCCESS != parse_metrics_file()) {
             OUTPUT(("%s", _ERROR("Error: parsing metrics file")));
             goto CLEANUP;
@@ -127,12 +133,14 @@ int main(int argc, char** argv) {
     }
 
     /* Parse input parameters */
+	// 什么是输入参数？？？怎么分析？
     if (PERFEXPERT_SUCCESS != (rc = parse_segment_params(&segments))) {
         OUTPUT(("%s", _ERROR("Error: parsing input params")));
         goto CLEANUP;
     }
 
     /* Select recommendations */
+	// 这个是重点
     rc = select_recommendations_all(&segments);
 
     CLEANUP:

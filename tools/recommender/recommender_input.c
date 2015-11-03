@@ -61,6 +61,7 @@ int parse_segment_params(perfexpert_list_t *segments) {
     }
 
     bzero(buffer, BUFFER_SIZE);
+	// 这里使用的是输入文件，怎么老是去更新指标metrics_table呢？？
     while (NULL != fgets(buffer, BUFFER_SIZE - 1, globals.inputfile_FP)) {
         node_t *node = NULL;
         
@@ -76,15 +77,20 @@ int parse_segment_params(perfexpert_list_t *segments) {
         buffer[strlen(buffer) - 1] = '\0';
 
         /* Is this line a new code bottleneck specification? */
+		// 判断该行第一个字符是不是'%'，如果是，则是代码瓶颈
+		// 这里是说在其他地方已经判断是否是瓶颈？？？给瓶颈的行加上了'%'？？？
         if (0 == strncmp("%", buffer, 1)) {
             OUTPUT_VERBOSE((5, "   (%d) %s", input_line,
                 _GREEN("new bottleneck found")));
 
             /* Create a list item for this code bottleneck */
+			// 申请以item为首地址以sizeof为大小以segment_t类型的空间
             PERFEXPERT_ALLOC(segment_t, item, sizeof(segment_t));
             perfexpert_list_item_construct((perfexpert_list_item_t *)item);
             
             /* Initialize some elements on segment */
+			// 这里又构建了一个list结构体(应该说segment_t *item中构建的)
+			// 注意：item->functions和segments一样的类型
             perfexpert_list_construct((perfexpert_list_t *)&(item->functions));
             item->function_name = NULL;
             item->section_info = NULL;
@@ -98,11 +104,18 @@ int parse_segment_params(perfexpert_list_t *segments) {
             item->line_number = 0;
 
             /* Add this item to 'segments' */
+			// 注意这里segments是perfexpert_list_t类型，其中包含了一个item类型的成员
+			// 先添加到segments中，然后再更新内容
             perfexpert_list_append(segments, (perfexpert_list_item_t *)item);
 
             /* Create the SQL statement for this new segment */
+			// 这一步很关键
             bzero(sql, BUFFER_SIZE);
-            sprintf(sql, "%s %s %s %d'); %s %s %s %d';",
+			// sql内容为：
+            // INSERT INTO metrics_table (code_filename) VALUES ('new_code- pid');
+            // SELECT id FROM metrics_table WHERE code_filename = 'new_code- pid';
+			// 语法正确？？？
+ 			sprintf(sql, "%s %s %s %d'); %s %s %s %d';",
                 "INSERT INTO", globals.metrics_table,
                 "(code_filename) VALUES ('new_code-", (int)getpid(),
                 "SELECT id FROM", globals.metrics_table,
@@ -110,6 +123,17 @@ int parse_segment_params(perfexpert_list_t *segments) {
             OUTPUT_VERBOSE((5, "     SQL: %s", _CYAN(sql)));
             
             /* Insert new code fragment into metrics database, retrieve id */
+			// 我可以说没明白这部分的意思吗？？？？？以怎样的形式插入的code fragment??
+			// 又和pid有毛关系？？？
+			// rowid是传给回调函数的第一个参数
+			// 回调函数的第一个参数是sqlite3_exec直接传递的
+			// 第二个参数是返回结果中的columns数(纵列数？)
+			// 第三个参数是一个指针数组，指针分别指向columns的内容
+			// 第四个参数是columns的名字；
+			// The name of a result column is the value of the "AS" clause for that 
+			// column, if there is an AS clause. If there is no AS clause then the name 
+			// of the column is unspecified and may change from one release of SQLite 
+			// to the next.
             if (SQLITE_OK != sqlite3_exec(globals.db, sql,
                 perfexpert_database_get_int, (void *)&rowid, &error_msg)) {
                 OUTPUT(("%s %s", _ERROR("Error: SQL error"), error_msg));
@@ -119,6 +143,7 @@ int parse_segment_params(perfexpert_list_t *segments) {
             }
 
             /* Store the rowid on the segment structure */
+			// 上面有变更rowid的值吗？？？？where??
             OUTPUT_VERBOSE((5, "     ID: %d", rowid));
             item->rowid = rowid;
  
@@ -126,7 +151,10 @@ int parse_segment_params(perfexpert_list_t *segments) {
         }
 
         PERFEXPERT_ALLOC(node_t, node, (sizeof(node_t) + strlen(buffer) + 1));
+		// 将buffer里的内容直接复制到node之后
+		// node->key指向复制后的头部，内容是'='之前的内容？？相当于变量
         node->key = strtok(strcpy((char*)(node + 1), buffer), "=\r\n");
+		// NULL意思是参数和上次一样，只不过是接着上次查找'='之后的内容？相当于参数
         node->value = strtok(NULL, "\r\n");
 
         /* OK, now it is time to check which parameter is this, and add it to
@@ -135,13 +163,20 @@ int parse_segment_params(perfexpert_list_t *segments) {
          */
 
         /* Code param: code.filename */
+		// 从上面可以看到buffer是从输入文件中获取的一行信息
+		// 以下都是基于这一行信息来进行分析的？？？？
+		// 这个文件应该是经过处理的特定格式文件
         if (0 == strncmp("code.filename", node->key, 13)) {
             /* Remove the "./src" string from the front of the filename */
+			// 这里已经确定前5个字符构成的字符串是："./src"，和下一句又重复？
             if (0 == strncmp(node->value, "./src", 5)) {
+				// 判断"./src"是不是node->value的子串，如果是，返回子串首地址
                 node->value = strstr(node->value, "./src");
+				// 也就是将"./src"去掉
                 memmove(node->value, node->value + strlen("./src"), 1 +
                     strlen(node->value + strlen("./src")));
             }
+			// 现在node->value仅仅保存了不包含路径的文件名
             PERFEXPERT_ALLOC(char, item->filename, (strlen(node->value) + 1));
             strcpy(item->filename, node->value);
             OUTPUT_VERBOSE((10, "   (%d) %s [%s]", input_line,
@@ -186,6 +221,7 @@ int parse_segment_params(perfexpert_list_t *segments) {
         if (0 == strncmp("code.function_name", node->key, 18)) {
             /* Remove everyting after the '.' (for OMP functions) */
             temp_str = node->value;
+			// 拆分字符串，NULL代替delim
             strsep(&temp_str, ".");
             PERFEXPERT_ALLOC(char, item->function_name,
                 (strlen(node->value) + 1));
@@ -207,6 +243,7 @@ int parse_segment_params(perfexpert_list_t *segments) {
         }
 
         /* Clean the node->key (remove undesired characters) */
+		// 清除以方面SQL操作？？？
         perfexpert_string_replace_char(node->key, '%', '_');
         perfexpert_string_replace_char(node->key, '.', '_');
         perfexpert_string_replace_char(node->key, '(', '_');
@@ -216,6 +253,8 @@ int parse_segment_params(perfexpert_list_t *segments) {
 
         /* Assemble the SQL query */
         bzero(sql, BUFFER_SIZE);
+		// 将id=rowid的条目中的node-key关键字内容设置为node->value
+		// 相当于把输入文件中的所有内容更新到了metrics_table表格中
         sprintf(sql, "UPDATE %s SET %s='%s' WHERE id=%d;",
             globals.metrics_table, node->key, node->value, rowid);
 
@@ -292,6 +331,17 @@ int parse_metrics_file(void) {
     }
 
     bzero(sql, BUFFER_SIZE);
+	// sql语句为：
+	// CREATE TEMP TABLE metrics_table (
+	// id INTERGER PRIMARY KEY, code_filename CHAR(1024)，
+	// code_line_number INTEGER, code_type CHAR(128),
+	// code_extra_info CHAR(1024)，
+	// 后面还有很多metrics输入文件关键字
+	// 临时表特点
+	// 1. 参数控制：tmp_table_size。
+	// 2. 到达上线后创建文件在磁盘上。
+	// 3. 表定义和数据都在内存里。
+	// 4. 可以包含TEXT, BLOB等字段。
     sprintf(sql, "CREATE TEMP TABLE %s ( ", globals.metrics_table);
     strcat(sql, "id INTEGER PRIMARY KEY, code_filename CHAR( 1024 ), ");
     strcat(sql, "code_line_number INTEGER, code_type CHAR( 128 ), ");
@@ -316,11 +366,12 @@ int parse_metrics_file(void) {
         perfexpert_string_replace_char(buffer, '-', '_');
         perfexpert_string_replace_char(buffer, ':', '_');
 
+		// buffer 中的内容都送入sql了，也就是把指标作为变量，类型为FLOAT
         strcat(sql, buffer);
         strcat(sql, " FLOAT, ");
     }
     sql[strlen(sql)-2] = '\0'; // remove the last ',' and '\n'
-    strcat(sql, ");");
+    strcat(sql, ");");			// sql语句结束
     OUTPUT_VERBOSE((10, "metrics SQL: %s", _CYAN(sql)));
 
     /* Create metrics table */
