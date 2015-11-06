@@ -1,0 +1,39 @@
+./analyzer/analyzer_lcpi.c:77:        lcpi->value = 0.0;
+./analyzer/analyzer_lcpi.c:80:        PERFEXPERT_ALLOC(char, lcpi->name, strlen(token) + 1);
+./analyzer/analyzer_lcpi.c:81:        strcpy(lcpi->name, perfexpert_string_remove_char(token, ' '));
+./analyzer/analyzer_lcpi.c:82:        strcpy(lcpi->name_md5, perfexpert_md5_string(lcpi->name));
+./analyzer/analyzer_lcpi.c:85:        lcpi->expression = evaluator_create(token);
+./analyzer/analyzer_lcpi.c:86:        if (NULL == lcpi->expression) {
+./analyzer/analyzer_lcpi.c:95:        OUTPUT_VERBOSE((7, "   [%s]=[%s] (%s)", lcpi->name,
+./analyzer/analyzer_lcpi.c:96:            evaluator_get_string(lcpi->expression), lcpi->name_md5));
+./analyzer/analyzer_lcpi.c:123:            lcpi = lcpi->hh_str.next) {
+./analyzer/analyzer_lcpi.c:127:            strcpy(hotspot_lcpi->name_md5, lcpi->name_md5);
+./analyzer/analyzer_lcpi.c:128:            hotspot_lcpi->name = lcpi->name;
+./analyzer/analyzer_lcpi.c:129:            hotspot_lcpi->value = lcpi->value;
+./analyzer/analyzer_lcpi.c:130:            hotspot_lcpi->expression = lcpi->expression;
+./analyzer/analyzer_lcpi.c:133:            evaluator_get_variables(hotspot_lcpi->expression, &names, &count);
+./analyzer/analyzer_lcpi.c:160:                hotspot_lcpi->value = evaluator_evaluate(
+./analyzer/analyzer_lcpi.c:161:                    hotspot_lcpi->expression, count, names, values);
+./analyzer/analyzer_lcpi.c:169:            OUTPUT_VERBOSE((10, "       %s=[%g]", hotspot_lcpi->name,
+./analyzer/analyzer_lcpi.c:170:                hotspot_lcpi->value));
+./analyzer/analyzer_output.c:203:        lcpi = lcpi->hh_str.next) {
+./analyzer/analyzer_output.c:210:        strcpy(temp_str, lcpi->name);
+./analyzer/analyzer_output.c:218:        if (NULL != strstr(lcpi->name, "overall")) {
+./analyzer/analyzer_output.c:235:            if (100 > (lcpi->value * 100)) {
+./analyzer/analyzer_output.c:237:                    (lcpi->value * 100));
+./analyzer/analyzer_output.c:238:                PRETTY_PRINT((int)rint((lcpi->value * 50)), "*");
+./analyzer/analyzer_output.c:257:            fprintf(globals.outputfile_FP, "%s%5.2f ", description, lcpi->value);
+./analyzer/analyzer_output.c:258:            PRETTY_PRINT_BAR((int)rint((lcpi->value * 20)), ">");
+./analyzer/analyzer_output.c:262:            if (0.5 >= lcpi->value) {
+./analyzer/analyzer_output.c:264:                    lcpi->value);
+./analyzer/analyzer_output.c:265:                PRETTY_PRINT_BAR((int)rint((lcpi->value * 20)), _GREEN(">"));
+./analyzer/analyzer_output.c:266:            } else if ((0.5 < lcpi->value) && (1.0 >= lcpi->value)) {
+./analyzer/analyzer_output.c:268:                    lcpi->value);
+./analyzer/analyzer_output.c:269:                PRETTY_PRINT_BAR((int)rint((lcpi->value * 20)), _YELLOW(">"));
+./analyzer/analyzer_output.c:270:            } else if ((1.0 < lcpi->value) && (2.0 >= lcpi->value)) {
+./analyzer/analyzer_output.c:272:                    lcpi->value);
+./analyzer/analyzer_output.c:273:                PRETTY_PRINT_BAR((int)rint((lcpi->value * 20)), _RED(">"));
+./analyzer/analyzer_output.c:276:                    _BOLDRED(description), lcpi->value);
+./analyzer/analyzer_output.c:277:                PRETTY_PRINT_BAR((int)rint((lcpi->value * 20)), _BOLDRED(">"));                
+./analyzer/analyzer_output.c:381:        lcpi = lcpi->hh_str.next) {
+./analyzer/analyzer_output.c:382:        fprintf(file_FP, "perfexpert.%s=%f\n", lcpi->name, lcpi->value);
