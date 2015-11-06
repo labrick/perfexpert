@@ -30,9 +30,9 @@
 #define EVENT_USED        ((BOOL) 2)
 #define EVENT_ADDED       ((BOOL) 3)
 
-#define USE_EVENT(X)       (event_list[X].use = EVENT_USED)
-#define ADD_EVENT(X)       (event_list[X].use = EVENT_ADDED)
-#define DOWNGRADE_EVENT(X) (event_list[X].use = EVENT_PRESENT)
+#define USE_EVENT(X)       (event_list[X].use = EVENT_USED)		// 准备采用该事件
+#define ADD_EVENT(X)       (event_list[X].use = EVENT_ADDED)	// 事件已加入事件组
+#define DOWNGRADE_EVENT(X) (event_list[X].use = EVENT_PRESENT)	
 
 #define IS_EVENT_AVAILABLE(X) (X < EVENT_COUNT && event_list[X].use != EVENT_NOT_PRESENT)
 #define IS_EVENT_USED(X)      (X < EVENT_COUNT && event_list[X].use == EVENT_USED)

@@ -38,6 +38,9 @@ int main(int argc, char* argv []) {
     attach_sampling_rate(saved_sampling_freq);
 
     /* Generate LCPI metrics */
+	// 参数都为char*类型，通过下面的函数放入：
+	// 		所要统计的PMU名称加和 /总的指令数
+	// 	这里是把metrics结构体中都填写了指令混合比的计算方法(字符串形式)
     get_ratio_floating_point(metrics.ratio_floating_point);
     get_ratio_data_accesses(metrics.ratio_data_accesses);
     get_gflops(metrics.gflops_overall, metrics.gflops_packed,
@@ -67,6 +70,7 @@ int main(int argc, char* argv []) {
 }
 
 /* write_lcpi */
+// 只是将指令混合比的计算方式以字符串的方式输出到'lcpi.conf'文件中
 void write_lcpi(lcpi_t metrics) {
     FILE* fp;
 
@@ -122,11 +126,12 @@ void write_experiment(void) {
     fprintf(fp, "# Experiment file generated using sniffer\n# version = 1.0\n");
 
     do {
-        addCount = 0;
+        addCount = 0;		// 已加入事件组的事件数
         remaining = 0;
         int j;
         int event_set = PAPI_NULL;
         
+		// 创建事件组
         if (PAPI_OK != (ret = PAPI_create_eventset(&event_set))) {
             fprintf(stderr, "Could not create PAPI event set\n");
             fprintf(stderr, "PAPI error message: %s.\n", PAPI_strerror(ret));
@@ -135,7 +140,9 @@ void write_experiment(void) {
         }
 
         /* Add PAPI_TOT_INS as we will be measuring it in every run */
+		// 简单的将字符串"PAPI_TOT_INS"放入papi_tot_ins_code变量中
         PAPI_event_name_to_code("PAPI_TOT_INS", &papi_tot_ins_code);
+		// 向事件组中添加原生事件或者PAPI预制事件
         if (PAPI_OK != (ret = PAPI_add_event(event_set, papi_tot_ins_code))) {
             fprintf(stderr, "Could not add PAPI_TOT_INS to the event set\n");
             fprintf(stderr, "PAPI error message: %s.\n", PAPI_strerror(ret));
@@ -143,19 +150,21 @@ void write_experiment(void) {
             exit(1);
         }
 
+		// 将所有标记为使用的事件加入事件组，并将名称输出到文件
         for (j = 0; j < EVENT_COUNT; j++) {
             if (PAPI_TOT_INS == j) {
-                continue;
+                continue;		// 排除PAPI_TOT_INS事件
             }
             
-            if (IS_EVENT_USED(j) && TOT_INS != j) {
+            if (IS_EVENT_USED(j) && TOT_INS != j) {		// 只检测标记为使用的事件
                 PAPI_event_name_to_code(event_list[j].PAPI_event_name,
                     &event_code);
                 if (PAPI_OK == PAPI_add_event(event_set, event_code)) {
-                    ADD_EVENT(j);
-                    if (0 == remaining) { // New line
-                        fprintf(fp, "%%\n", exp_count);
+                    ADD_EVENT(j);		// 标记为已加入事件组
+                    if (0 == remaining) { // New line	// 第一次执行
+                        fprintf(fp, "%%\n", exp_count);	// %exp_count
                     }
+					// 事件名称:采样率
                     fprintf(fp, "%s:%d\n", event_list[j].PAPI_event_name,
                         event_list[j].sampling_freq);
                     addCount++;
@@ -166,6 +175,7 @@ void write_experiment(void) {
         
         if (0 == addCount && 0 < remaining) {
             // Some events remain but could not be added to the event set
+			// 还有些需要探测的事件没有加入事件组
             fprintf(stderr,
                 "Error: The following events are available but could not be added to the event set:\n");
             for (j = 0; j < EVENT_COUNT; j++) {
@@ -181,7 +191,7 @@ void write_experiment(void) {
         if ((0 < addCount) && (0 < remaining)) {
             fprintf(fp, "PAPI_TOT_INS:%d\n", event_list[TOT_INS].sampling_freq);
         }
-    } while (0 < remaining);
+    } while (0 < remaining);		// remaining一直在++，short型加327678次归为负？
 
     fclose(fp);
 }
@@ -669,14 +679,18 @@ void get_ratio_data_accesses(char *output) {
 }
 
 /* get_ratio_floating_point */
+// define LCPI_DEF_LENGTH  600(.h)
 void get_ratio_floating_point(char *output) {
     char temp_str[LCPI_DEF_LENGTH];
 
     bzero(temp_str, LCPI_DEF_LENGTH);
     if (IS_EVENT_AVAILABLE(FML_INS) && IS_EVENT_AVAILABLE(FDV_INS)) {
-        USE_EVENT(FML_INS);
+        USE_EVENT(FML_INS);			// 将use成员置为使用
         USE_EVENT(FDV_INS);
 
+		// 如果浮点加可用，则：
+		// temp_str = "(PAPI_FML_INS + PAPI_FDV_INS + PAPI_FAD_INS)"
+		// 否则去掉浮点加，只保留浮点乘除
         if (IS_EVENT_AVAILABLE(FAD_INS)) {
             USE_EVENT(FAD_INS);
             sprintf(temp_str, "(%s + %s + %s)",
@@ -695,6 +709,7 @@ void get_ratio_floating_point(char *output) {
         IS_EVENT_AVAILABLE(FP_COMP_OPS_EXE_SSE_FP_SCALAR_SINGLE) &&
         IS_EVENT_AVAILABLE(FP_COMP_OPS_EXE_SSE_PACKED_SINGLE) &&
         IS_EVENT_AVAILABLE(FP_COMP_OPS_EXE_SSE_SCALAR_DOUBLE)) {
+		// test_counter的意义还不够明确
         if (0 == test_counter(FP_COMP_OPS_EXE_SSE_FP_SCALAR_SINGLE_SSE_SCALAR_DOUBLE)) {
             DOWNGRADE_EVENT(FP_COMP_OPS_EXE_SSE_FP_SCALAR);
             DOWNGRADE_EVENT(FP_COMP_OPS_EXE_SSE_SCALAR_DOUBLE);
@@ -721,6 +736,8 @@ void get_ratio_floating_point(char *output) {
     } else {
         counter_err("ratio_floating_point");
     }
+	// temp_str中放了可能要使用的事件名称，采用" + "进行连接
+	// 加和 / PAPI_TOT_INS(竟然不加括号)
     sprintf(output, "ratio.floating_point = %s / PAPI_TOT_INS", temp_str);
 }
 
@@ -746,12 +763,14 @@ void counter_err(char *lcpi) {
 }
 
 /* test_counter */
+// 测试计数器？？？嘛啊...不需要返回值啊
 int test_counter(unsigned counter) {
     int ret;
     int event_set = PAPI_NULL;
     int papi_tot_ins_code;
     int event_code;
 
+	// 创建事件组
     if (PAPI_OK != (ret = PAPI_create_eventset(&event_set))) {
         fprintf(stderr, "Could not create PAPI event set\n");
         fprintf(stderr, "PAPI error message: %s.\n", PAPI_strerror(ret));
@@ -760,6 +779,8 @@ int test_counter(unsigned counter) {
 
     /* Add PAPI_TOT_INS as we will be measuring it in every run */
     PAPI_event_name_to_code("PAPI_TOT_INS", &papi_tot_ins_code);
+	// 向事件组中添加原生事件或者PAPI预制事件，上一句是什么？？
+	// 上一句是说将字符串"PAPI_TOT_INS"放入papi_tot_ins_code变量中？？
     if (PAPI_OK != (ret = PAPI_add_event(event_set, papi_tot_ins_code))) {
         fprintf(stderr, "Could not add PAPI_TOT_INS to the event set\n");
         fprintf(stderr, "PAPI error message: %s.\n", PAPI_strerror(ret));
