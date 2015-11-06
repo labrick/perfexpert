@@ -60,7 +60,7 @@ int main(int argc, char** argv) {
         .colorful         = PERFEXPERT_FALSE, // int
         .metrics_file     = NULL,             // char *		// 什么指标？？
         .metrics_table    = METRICS_TABLE,    // char *		// 就是PMU内容吧？
-        .rec_count        = 3                 // int		// 这个啥？
+        .rec_count        = 3                 // int		// 这里是建议的个数
     };
 
     /* Parse command-line parameters */
