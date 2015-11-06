@@ -39,6 +39,7 @@ extern "C" {
 /* profile_parse_file */
 int profile_parse_file(const char* file, const char* tool,
     perfexpert_list_t *profiles) {
+	// 加载hpctoolkit工具
     if (PERFEXPERT_SUCCESS !=
         perfexpert_load_module(globals.tool, &(globals.toolmodule))) {
         OUTPUT(("%s [%s]", _ERROR("Error: unable to local tool module"),
@@ -47,6 +48,7 @@ int profile_parse_file(const char* file, const char* tool,
     }
 
     /* Just to be sure... */
+	// toolmodule在哪定义的？？？
     if (NULL == globals.toolmodule.parse_file) {
         OUTPUT(("%s [%s]",
             _ERROR("Error: tool module does not implement measurements()"),
@@ -86,6 +88,7 @@ static int profile_aggregate_hotspots(profile_t *profile) {
         (perfexpert_list_item_t *)aggregated_hotspot);
 
     /* For each hotspot... */
+	// 这里就是把profile中所有的热点加入到aggergated_hotspot表中，并从原表中删除
     hotspot = (procedure_t *)perfexpert_list_get_first(&(profile->hotspots));
     while ((perfexpert_list_item_t *)hotspot != &(profile->hotspots.sentinel)) {
         metric_t *metric;
@@ -96,6 +99,9 @@ static int profile_aggregate_hotspots(profile_t *profile) {
             _RED(hotspot->name)));
 
         /* For all metrics in hotspot... */
+		// 本来hotspot放在profiles->profile(cycle)->hotspots->hotspot(cycle)->
+		// metrics->metric(cycle)
+		// 现在把它转移到profiles->profile(cycle)->hotspots->hotspot(cycle)中
         while (0 != perfexpert_list_get_size(&(hotspot->metrics))) {
             metric = (metric_t *)perfexpert_list_get_first(&(hotspot->metrics));
 
@@ -108,12 +114,14 @@ static int profile_aggregate_hotspots(profile_t *profile) {
         }
 
         /* Remove hotspot from the profile's list of hotspots and move on */
+		// 把整个hotspot条目去除掉
         perfexpert_list_remove_item(&(profile->hotspots), 
             (perfexpert_list_item_t *)hotspot);
         hotspot = (procedure_t *)perfexpert_list_get_next(hotspot);
     }
 
     /* Add the aggregated hotspot to the profile's list of hotspots */
+	// aggregated_hotspot是个局部变量，再把这个局部变量加入到
     perfexpert_list_append(&(profile->hotspots), 
         (perfexpert_list_item_t *)aggregated_hotspot);
 
@@ -140,10 +148,12 @@ static int profile_aggregate_metrics(profile_t *profile, procedure_t *hotspot) {
     }
 
     /* Ignore and remove from list of metrics the ones with other thread IDs */
+	// 忽略或者删除同其他线程相同的指标列表???
     current = (metric_t *)perfexpert_list_get_first(&(hotspot->metrics));
     while ((perfexpert_list_item_t *)current != &(hotspot->metrics.sentinel)) {
         next = (metric_t *)current->next;
 
+		// globals中存储的是什么线程？？？满足条件直接删除
         if ((-1 != globals.thread) && (current->thread != globals.thread)) {
             perfexpert_list_remove_item(&(hotspot->metrics),
                 (perfexpert_list_item_t *)current);
@@ -156,6 +166,7 @@ static int profile_aggregate_metrics(profile_t *profile, procedure_t *hotspot) {
     }
 
     /* For all metrics in hotspot... */
+	// 遍历热点中的所有指标
     current = (metric_t *)perfexpert_list_get_first(&(hotspot->metrics));
     while ((perfexpert_list_item_t *)current != &(hotspot->metrics.sentinel)) {
         if (9 <= globals.verbose) {
@@ -168,6 +179,9 @@ static int profile_aggregate_metrics(profile_t *profile, procedure_t *hotspot) {
         while ((perfexpert_list_item_t *)next != &(hotspot->metrics.sentinel)) {
             next_next = (metric_t *)next->next;
 
+			// 记住current指向的是metric某一个条目
+			// 是判断名字和公式都相同共同？？
+			// 如果相同就把value直接相加？？？接着把重复的删除？
             if ((0 == strcmp(current->name, next->name)) &&
                 (current->experiment == next->experiment)) {
 
@@ -205,12 +219,14 @@ static int profile_aggregate_metrics(profile_t *profile, procedure_t *hotspot) {
         printf("%s          ", PROGRAM_PREFIX);
     }
     current = (metric_t *)perfexpert_list_get_first(&(hotspot->metrics));
+	// 再次遍历？？？干嘛？上次是删除重复的，这次应该就是做正事了
     while ((perfexpert_list_item_t *)current != &(hotspot->metrics.sentinel)) {
         if (10 <= globals.verbose) {
             printf("%s[%d](%d) ", _CYAN(current->name), current->thread,
                 current->experiment);
         }
         strcpy(current->name_md5, perfexpert_md5_string(current->name));
+		// 一到hash就死了。。。。。。。。。。。。。。。。。。
         perfexpert_hash_add_str(hotspot->metrics_by_name, name_md5, current);
         current = (metric_t *)perfexpert_list_get_next(current);
     }
@@ -230,12 +246,19 @@ int profile_flatten_all(perfexpert_list_t *profiles) {
 
     /* For each profile in the list of profiles... */
     profile = (profile_t *)perfexpert_list_get_first(profiles);
+	// 再次遍历profiles，两次遍历目的不同
     while ((perfexpert_list_item_t *)profile != &(profiles->sentinel)) {
         OUTPUT_VERBOSE((10, " [%d] %s", profile->id, _GREEN(profile->name)));
 
         /* Aggregate all hotspots in this profile? */
+		// aggregate应该翻译成什么？？总共的？
         if (PERFEXPERT_TRUE == globals.aggregate) {
-            if (PERFEXPERT_SUCCESS != profile_aggregate_hotspots(profile)) {
+			// 下面这个函数比较明确：
+			// 就是遍历所有profile，找出热点加入aggergated_hotspot表，并从原表删除
+            // 本来hotspot放在profiles->profile(cycle)->hotspots->hotspot(cycle)->
+			// metrics->metric(cycle)
+			// 现在把它转移到profiles->profile(cycle)->hotspots->hotspot(cycle)中
+			if (PERFEXPERT_SUCCESS != profile_aggregate_hotspots(profile)) {
                 OUTPUT(("%s (%s)",
                     _ERROR("Error: unable to aggregate profile's hotspots"),
                     profile->name));
@@ -267,8 +290,10 @@ static int profile_flatten_hotspots(profile_t *profile) {
     OUTPUT_VERBOSE((4, "   %s", _CYAN("Flatenning hotspots")));
 
     /* For each hotspot in the profile's list of hotspots... */
+	// 遍历profile列表中所有热点
     hotspot = (procedure_t *)perfexpert_list_get_first(&(profile->hotspots));
     while ((perfexpert_list_item_t *)hotspot != &(profile->hotspots.sentinel)) {
+		// 热点类型为函数
         if (PERFEXPERT_HOTSPOT_FUNCTION == hotspot->type) {
             OUTPUT_VERBOSE((8, "    [%d] %s (%s@%s:%d)", hotspot->id,
                 _YELLOW(hotspot->name),
@@ -284,6 +309,8 @@ static int profile_flatten_hotspots(profile_t *profile) {
         }
 
         /* Aggregate threads measurements */
+		// 总的线程策略？
+		// profile hotspot同属于profiles的成员，将所有hotspot整理后放入hash表
         if (PERFEXPERT_SUCCESS != profile_aggregate_metrics(profile, hotspot)) {
             OUTPUT(("%s (%s)", _ERROR("Error: aggregating metrics"),
                 hotspot->name));
@@ -340,11 +367,13 @@ int profile_check_all(perfexpert_list_t *profiles) {
     OUTPUT_VERBOSE((5, "%s", _BLUE("Checking profiles")));
 
     profile = (profile_t *)perfexpert_list_get_first(profiles);
+	// 遍历表中所有内容
     while ((perfexpert_list_item_t *)profile != &(profiles->sentinel)) {
         OUTPUT_VERBOSE((10, " [%d] %s", profile->id, _GREEN(profile->name)));
         if (0 < perfexpert_list_get_size(&(profile->callees))) {
             if (PERFEXPERT_SUCCESS !=
             profile_check_callpath(&(profile->callees), 0)) {
+				// 看看上面函数干了什么？
                 OUTPUT(("%s (%s)", _ERROR("Error: malformed profile"),
                     profile->name));
                 return PERFEXPERT_ERROR;
@@ -371,7 +400,9 @@ static int profile_check_callpath(perfexpert_list_t *calls, int root) {
     }
 
     callpath = (callpath_t *)perfexpert_list_get_first(calls);
+	// 再次遍历
     while ((perfexpert_list_item_t *)callpath != &(calls->sentinel)) {
+		// 这里的type就是hotspot的类型
         if (PERFEXPERT_HOTSPOT_FUNCTION == callpath->procedure->type) {
             OUTPUT_VERBOSE((9, "%s [%d] %s (%s@%s:%d)", indent, callpath->id,
                 _YELLOW(callpath->procedure->name),
@@ -379,7 +410,9 @@ static int profile_check_callpath(perfexpert_list_t *calls, int root) {
                 callpath->procedure->file->shortname,
                 callpath->procedure->line));
         }
+		// 如果type是循环类型
         if (PERFEXPERT_HOTSPOT_LOOP == callpath->procedure->type) {
+			// 直接强制类型转换？？？？（两个结构体差别是不大）
             loop_t *loop = (loop_t *)callpath->procedure;
             OUTPUT_VERBOSE((9, "%s [%d] %s (%s@%s:%d)", indent, callpath->id,
                 _YELLOW("loop"), loop->procedure->module->shortname,

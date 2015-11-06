@@ -76,12 +76,19 @@ int lcpi_parse_file(const char *file) {
         PERFEXPERT_ALLOC(lcpi_t, lcpi, sizeof(lcpi_t));
         lcpi->value = 0.0;
 
+		// 以'='拆分字符串
         token = strtok(buffer, "=");
         PERFEXPERT_ALLOC(char, lcpi->name, strlen(token) + 1);
+		// 将'='左侧内容去除空格后放入lcpi->name
+		// md5值放入lcpi->name_md5
         strcpy(lcpi->name, perfexpert_string_remove_char(token, ' '));
         strcpy(lcpi->name_md5, perfexpert_md5_string(lcpi->name));
 
         token = strtok(NULL, "=");
+		// Create evaluator object from string containing mathematical 
+		// representation of function. Evaluator object could be used later 
+		// to evaluate function for specific variable values or to calculate 
+		// function derivative over some variable.
         lcpi->expression = evaluator_create(token);
         if (NULL == lcpi->expression) {
             OUTPUT(("%s (%s)", _ERROR("Error: invalid expression at line"),
@@ -90,6 +97,9 @@ int lcpi_parse_file(const char *file) {
         }
 
         /* Add LCPI to global hash of LCPIs */
+		// hash方面的一些计算，不断的进行重定义，可烦人
+		// 也就是把上面处理得到的信息得到合理的存储
+		// 将lcpi和lcpi_by_name通过hash表关联？？？
         perfexpert_hash_add_str(globals.lcpi_by_name, name_md5, lcpi);
 
         OUTPUT_VERBOSE((7, "   [%s]=[%s] (%s)", lcpi->name,

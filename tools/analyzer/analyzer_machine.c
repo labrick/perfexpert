@@ -74,13 +74,17 @@ int machine_parse_file(const char *file) {
 
         token = strtok(buffer, "=");
         PERFEXPERT_ALLOC(char, metric->name, strlen(token) + 1);
+		// 名字 MD5
         strcpy(metric->name, perfexpert_string_remove_char(token, ' '));
         strcpy(metric->name_md5, perfexpert_md5_string(metric->name));
 
         token = strtok(NULL, "=");
+		// 这里应该就是字符串的数值，然后改变类型为浮点数
+		// 也就是说里面存储的是机器的参数
         metric->value = atof(token);
 
         /* Add entry to the list and also to the hash */
+		// 也是通过名称将globals和metric结构体关联起来了
         perfexpert_hash_add_str(globals.machine_by_name, name_md5, metric);
 
         OUTPUT_VERBOSE((7, "   [%s]=[%.2f] (%s)", metric->name, metric->value,

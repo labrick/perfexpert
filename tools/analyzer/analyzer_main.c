@@ -43,7 +43,7 @@ int main(int argc, char **argv) {
 
     /* Set default values for globals */
     globals = (globals_t) {
-        .threshold       = 0.0,              // double
+        .threshold       = 0.0,              // double		// cpi阈值，小于它才是好
         .tool            = "hpctoolkit",     // char *
         .inputfile       = NULL,             // char *
         .outputfile      = NULL,             // char *
@@ -52,9 +52,9 @@ int main(int argc, char **argv) {
         .thread          = -1,               // int
         .machinefile     = NULL,             // char *
         .machine_by_name = NULL,             // metric_t *
-        .lcpifile        = NULL,             // char *
+        .lcpifile        = NULL,             // char *		// 运行微benchmark后生成 YANG
         .lcpi_by_name    = NULL,             // lcpi_t *
-        .verbose         = 0,                // int
+        .verbose         = 0,                // int			// 这个是干嘛的？
         .colorful        = PERFEXPERT_FALSE, // int
         .order           = "none",           // char *
         .found_hotspots  = PERFEXPERT_FALSE, // int
@@ -62,6 +62,7 @@ int main(int argc, char **argv) {
     };
 
     /* Initialize list of profiles */
+	// profiles是干什么的要搞明白。。。。
     perfexpert_list_construct(&profiles);
 
     /* Parse command-line parameters */
@@ -71,6 +72,7 @@ int main(int argc, char **argv) {
     }
 
     /* Set default values */
+	// 构建完整路径放入machinefile和lcpifile
     if (NULL == globals.machinefile) {
         PERFEXPERT_ALLOC(char, globals.machinefile,
             (strlen(PERFEXPERT_ETCDIR) + strlen(MACHINE_FILE) + 2));
@@ -95,7 +97,10 @@ int main(int argc, char **argv) {
         OUTPUT_VERBOSE((7, "   printing recommendations to STDOUT"));
     }
 
+	// 下面的解析基本都是以'='为delim，前后内容得到合理的存储
+	//---------------------------------
     /* Parse LCPI metrics */
+	// 分析LCPI指标文件，也就是将lcpifile中名称/公式通过hash表合理存储
     if (PERFEXPERT_SUCCESS != lcpi_parse_file(globals.lcpifile)) {
         OUTPUT(("%s (%s)", _ERROR("Error: LCPI file is not valid"),
             globals.lcpifile));
@@ -103,6 +108,7 @@ int main(int argc, char **argv) {
     }
 
     /* Parse machine characterization */
+	// 分析机器特征
     if (PERFEXPERT_SUCCESS != machine_parse_file(globals.machinefile)) {
         OUTPUT(("%s (%s)",
             _ERROR("Error: Machine characterization file is not valid"),
@@ -111,6 +117,7 @@ int main(int argc, char **argv) {
     }
 
     /* Parse input file */
+	// profile是个什么东东？？这个分析有点意思，用了一个工具，但又不知道怎么用的
     if (PERFEXPERT_SUCCESS != profile_parse_file(globals.inputfile,
         globals.tool, &profiles)) {
         OUTPUT(("%s (%s)", _ERROR("Error: unable to parse input file"),
@@ -119,6 +126,8 @@ int main(int argc, char **argv) {
     }
 
     /* Check and flatten profiles */
+	// 也就是把profiles(循环)->callees(循环)->callpaths(循环)三个循环全部遍历
+	// 但是每个循环里存储的是什么信息呢？？？
     if (PERFEXPERT_SUCCESS != profile_check_all(&profiles)) {
         OUTPUT(("%s", _ERROR("Error: checking profile")));
         return PERFEXPERT_ERROR;
