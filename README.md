@@ -3,3 +3,20 @@
 这里存放的是perfexpert安装使用时所需要的依赖工具；
 
 根据INSTALL将包放入相应的位置，直接执行INSTALL即可正确安装；
+
+
+## dependencies-list
+
+### INSTALL
+
+libxml2-dev
+ln -s /usr/include/libxml2/libxml /usr/include/libxml
+
+autogen
+automake
+m4
+
+libpapi-dev
+
+bison flex
+
