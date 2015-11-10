@@ -1,6 +1,6 @@
 Copyright (c) 2011-2013  University of Texas at Austin. All rights reserved.
 
-$COPYRIGHT$
+## $COPYRIGHT$
 
 Additional copyrights may follow
 
@@ -18,17 +18,13 @@ Authors: Leonardo Fialho and Ashay Rane
 $HEADER$
 
 
-Documentation:
---------------
+## Documentation:
+
 See doc/ directory.
 
-EOF
+## PerfExpert.pptx info
 
-
-PerfExpert.pptx info
---------------
-
-P14: Performance metric
+### P14: Performance metric
 LCPI(Local Cycles Per Instruction)
 Compute upper bounds on CPI contribution for various categories, e.g., branches and memory accesses
 	brancches = (BR_INS*BR_lat + BR_MSP*BR_miss_lat)/TOT_INS
@@ -36,12 +32,12 @@ Compute upper bounds on CPI contribution for various categories, e.g., branches 
 	......
 
 
-P38: Conclusion
+### P38: Conclusion
 Output is easy to understand
 	Code sections sorted by importance
 	The longer the bar, the more important to optimize
 
-P42: Determining What to Optimize
+### P42: Determining What to Optimize
 PerfExpert reports "cost" of
 	Data accesses
 	Instruction accesses
@@ -51,7 +47,7 @@ PerfExpert reports "cost" of
 	Floating-point instructions
 for each key code segment
 
-P63 & P66 & 68 & 69 & 70: Porting and Installing Outline
+### P63 & P66 & 68 & 69 & 70: Porting and Installing Outline
 PerfExpert configuration(P66)
 	Establish categories: Each bar in the output corresponds to a category
 	define LCPI formulae for each category
@@ -98,5 +94,5 @@ PerfExpert configuration(P66)
 			Good CPI threshold
 The categories, formulae, counters, and parameters that follow are appropriate for Ranger
 
-P72 & P73: Porting from Ranger to Intel Nehalem(Longhorn)
+### P72 & P73: Porting from Ranger to Intel Nehalem(Longhorn)
 不同的处理器拥有不同的hardware performance counters，所以切换处理器要更改perfeormance counters
