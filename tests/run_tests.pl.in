@@ -37,13 +37,13 @@ $ENV{LD_LIBRARY_PATH}="$ENV{LD_LIBRARY_PATH}:$PAPI:$JVM:$ROSE";
 $ENV{PERFEXPERT_BUILDDIR}="$BUILDDIR/../";
 $ENV{PERFEXPERT_SRCDIR}="$SRCDIR";
 
-foreach my $test (`ls $SRCDIR/tests`) {
-    chomp($test);
+foreach my $test (`ls $SRCDIR/tests`) {		# 循环操作目录下的文件，相当于for
+    chomp($test);							# 取出字符串结尾的结束符
     if ("run_tests.pl.in" ne $test) {
         printf("%s $test\n", colored("Testing", 'blue'));
-        if (-x "$SRCDIR/tests/$test/run") {
+        if (-x "$SRCDIR/tests/$test/run") {	# 如果这个文件存在
             system("$SRCDIR/tests/$test/run");
-            if ($? eq 0) {
+            if ($? eq 0) {					# 上次的参数，也就是system返回值
                 printf("%s\n\n", colored("Test PASSED!", 'green'));
             } else {
                 printf("%s\n\n", colored("Test FAILED!", 'red'));
