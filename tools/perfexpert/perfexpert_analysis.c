@@ -117,6 +117,8 @@ int analysis(void) {
     argv[1] = NULL;
 
     /* The super-ninja test sctructure */
+    // 我要看到这里的指令是什么，并且要解释清楚
+    //
     bzero(temp_str[0], BUFFER_SIZE);
     sprintf(temp_str[0], "%s/%s", globals.stepdir, ANALYZER_OUTPUT);
     test.output = temp_str[0];

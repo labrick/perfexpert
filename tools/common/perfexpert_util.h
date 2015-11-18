@@ -168,7 +168,7 @@ static inline int perfexpert_util_file_exists(const char *file) {
 
 /* perfexpert_util_file_is_exec */
 static inline int perfexpert_util_file_is_exec(const char *file) {
-    if (0 != access(file, X_OK)) {
+    if (0 != access(file, X_OK)) {		// 可执行文件
         OUTPUT_VERBOSE((10, "%s (%s)",
             _RED((char *)"file is not executable or does not exist"), file));
         return PERFEXPERT_ERROR;
@@ -184,6 +184,7 @@ static inline int perfexpert_util_filename_only(const char *all, char **only) {
     strcpy(local_copy, all);
 
     token = strtok(local_copy, "/");
+	// 下面这个循环很有特点，最后如果token==NULL，就把上一个token返回
     while (token = strtok(NULL, "/")) {
         last = token;
     }
@@ -210,6 +211,7 @@ static inline int perfexpert_util_path_only(const char *file, char **path) {
         return PERFEXPERT_ERROR;
     }
 
+	// prog仅包含文件名称
     if (0 != strcmp(file, prog)) {
         PERFEXPERT_ALLOC(char, my_path, (strlen(file) - strlen(prog) + 1));
         strncpy(my_path, file, (strlen(file) - strlen(prog)));
@@ -226,17 +228,21 @@ static inline int perfexpert_util_path_only(const char *file, char **path) {
         PERFEXPERT_ALLOC(char, env_path, (strlen(getenv("PATH")) + 1));
         memcpy(env_path, getenv("PATH"), strlen(getenv("PATH")));
 
+		// strsep:获得每个路径喽？
         while ((try_path = strsep(&env_path, ":")) != NULL) {
             if ((*try_path == '\0') || (*try_path == '.')) {
-                try_path = getcwd(NULL, 0);
+                try_path = getcwd(NULL, 0);		// 遇见'\0''.'是怎么处理的？
             }
+			// 包含路径和文件名称以方便搜索
             sprintf(try_file, "%s/%s", try_path, file);
 
+			// 在相应路径下搜索可执行文件
             if ((0 == access(try_file, X_OK)) && (0 == stat(try_file, &fin))) {
                 if ((S_ISREG(fin.st_mode)) && ((0 != getuid()) ||
                     (0 != (fin.st_mode & (S_IXUSR | S_IXGRP | S_IXOTH))))) {
                     PERFEXPERT_ALLOC(char, resolved_path, strlen(try_path));
-                    memcpy(resolved_path, try_path, strlen(try_path));
+					// 搜索成功自把路径返回
+                    memcpy(resolved_path, try_path, strlen(try_path));	
                 }
             }
         }

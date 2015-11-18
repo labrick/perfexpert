@@ -33,10 +33,10 @@ extern "C" {
 #include "perfexpert_alloc.h"
 #include "perfexpert_constants.h"
 
-/* perfexpert_string_split */
+/* perfexpert_string_split:以token为delimiter，拆分""之外的内容放入**out中 */
 static inline int perfexpert_string_split(char *in, char **out, int token) {
     int i = 0, j = 0, c = 0;
-    int quoted = PERFEXPERT_FALSE;
+    int quoted = PERFEXPERT_FALSE;	// 作为一个是否拆分的开关，默认可拆
 
     while (0 != in[i]) {
         if (('"' == in[i]) && (PERFEXPERT_FALSE == quoted)) {
@@ -56,7 +56,7 @@ static inline int perfexpert_string_split(char *in, char **out, int token) {
                 out[c][i-j] = 0;
                 c++;
             }
-            j = i + 1;
+            j = i + 1;	// 记录上次拆过之后的位置，+1跳过delimiter
         }
         i++;
     }

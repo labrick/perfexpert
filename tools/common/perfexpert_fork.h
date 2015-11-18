@@ -97,6 +97,9 @@ static inline int fork_and_wait(test_t *test, char *argv[]) {
         return PERFEXPERT_ERROR;
     }
 
+	// 下面主要工作：
+	// 1. 创建子进程，并将子进程的输入输出重定向到管道，然后执行TARGET
+	// 2. 在父进程中读取子进程的信息，并为其准备输入输出文件
     if (0 == pid) {
         /* Child */
         close(PARENT_WRITE);
@@ -104,11 +107,17 @@ static inline int fork_and_wait(test_t *test, char *argv[]) {
 
         OUTPUT_VERBOSE((10, "      %s %s", _CYAN((char *)"program"), argv[0]));
 
+		// 把标准输入重定向到管道CHILD_READ
+        // 这里的意思是：父进程从输入文件中读数据并写入管道2，这里也就是直接进入
+        // 了子进程的读（变相的实现子进程的输入功能）
         if (-1 == dup2(CHILD_READ, STDIN_FILENO)) {
             OUTPUT(("%s", _ERROR((char *)"Error: unable to DUP STDIN")));
             return PERFEXPERT_ERROR;
         }
         if (NULL != test->output) {
+			// 把标准输出重定向到管道CHILD_WRITE
+            // 如果输出文件存在，这里就把子进程的输出写入管道1，后面父进程会从
+            // 管道1中读取并写入输出文件
             if (-1 == dup2(CHILD_WRITE, STDOUT_FILENO)) {
                 OUTPUT(("%s", _ERROR((char *)"Error: unable to DUP STDOUT")));
                 return PERFEXPERT_ERROR;
@@ -119,6 +128,8 @@ static inline int fork_and_wait(test_t *test, char *argv[]) {
             }
         }
 
+		// 这里就是执行argv[0]文件，argv作为参数
+		// 如果执行成功则函数不会返回, 执行失败则直接返回-1, 失败原因存于errno中
         execvp(argv[0], argv);
         
         OUTPUT(("child process failed to run, check if program exists"));
@@ -140,6 +151,7 @@ static inline int fork_and_wait(test_t *test, char *argv[]) {
                     test->input));
                 bzero(buffer, BUFFER_SIZE);
                 while (0 != (r_bytes = read(input_FP, buffer, BUFFER_SIZE))) {
+					// 从输入文件中读取BUFFER_SIZE字节数据写入父进程管道
                     w_bytes = write(PARENT_WRITE, buffer, r_bytes);
                     bzero(buffer, BUFFER_SIZE);
                 }
@@ -161,6 +173,7 @@ static inline int fork_and_wait(test_t *test, char *argv[]) {
             } else {
                 bzero(buffer, BUFFER_SIZE);
                 while (0 != (r_bytes = read(PARENT_READ, buffer, BUFFER_SIZE))) {
+					// 从父管道中读BUFFER_SIZE字节写入输出文件
                     w_bytes = write(output_FP, buffer, r_bytes);
                     bzero(buffer, BUFFER_SIZE);
                 }
@@ -170,6 +183,7 @@ static inline int fork_and_wait(test_t *test, char *argv[]) {
         }
 
         /* Just wait for the child... */
+		// rc=0则成功
         wait(&rc);
         OUTPUT_VERBOSE((10, "      %s  %d", _CYAN((char *)"result"), rc >> 8));
     }

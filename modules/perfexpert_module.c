@@ -84,6 +84,7 @@ int perfexpert_load_module(const char *toolname, perfexpert_module_t *module) {
      * have unresolved symbols. To solve this problem you should check if there
      * is any unresolved symbol in the module file (use 'nm' command to check).
      */
+	// 打开库文件filename
     modulehandle = lt_dlopenext(filename);
 
     if (NULL == modulehandle) {
@@ -105,12 +106,14 @@ int perfexpert_load_module(const char *toolname, perfexpert_module_t *module) {
     OUTPUT_VERBOSE((10, "   reference count: %i", moduleinfo->ref_count));
 
     /* Sanity check #2: avoid to load the same module twice */
+	// 打开次数？
     if (1 < moduleinfo->ref_count) {
         OUTPUT(("   module %s already loaded", moduleinfo->name));
         goto MODULE_ERROR;
     }
 
     /* Load module interface */
+	// 获得函数接口，但是没有执行吧？
     module->measurements = lt_dlsym(modulehandle,
         "perfexpert_tool_measurements");
     if (NULL == module->measurements) {

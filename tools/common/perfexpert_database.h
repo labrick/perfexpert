@@ -55,15 +55,15 @@ static inline int perfexpert_database_update(char **file) {
     char *sys_db = NULL, *my_db = NULL, *command = NULL;
     char *sys_ver = NULL, *my_ver = NULL, sys_ver_str[10], my_ver_str[10];
 
-    PERFEXPERT_ALLOC(char, sys_db,
+    PERFEXPERT_ALLOC(char, sys_db,		// 系统数据库？
         (strlen(PERFEXPERT_ETCDIR) + strlen(PERFEXPERT_DB) + 4));
     sprintf(sys_db, "%s/%s.sql", PERFEXPERT_ETCDIR, PERFEXPERT_DB);
 
-    PERFEXPERT_ALLOC(char, my_db,
+    PERFEXPERT_ALLOC(char, my_db,		// 个人数据库？
         (strlen(getenv("HOME")) + strlen(PERFEXPERT_DB) + 3));
     sprintf(my_db, "%s/.%s", getenv("HOME"), PERFEXPERT_DB);
 
-    PERFEXPERT_ALLOC(char, sys_ver,
+    PERFEXPERT_ALLOC(char, sys_ver,		// version?版本？
         (strlen(PERFEXPERT_ETCDIR) + strlen(PERFEXPERT_DB) + 10));
     sprintf(sys_ver, "%s/%s.version", PERFEXPERT_ETCDIR, PERFEXPERT_DB);
 
@@ -72,14 +72,15 @@ static inline int perfexpert_database_update(char **file) {
     sprintf(my_ver, "%s/.%s.version", getenv("HOME"), PERFEXPERT_DB);
 
     PERFEXPERT_ALLOC(char, command, (strlen(my_db) + strlen(sys_db) + 12));
-    sprintf(command, "sqlite3 %s < %s", my_db, sys_db);
+    // 看着节奏是在根据系统数据库形成自己的数据库，和tests中run里的数据库形成相同
+	sprintf(command, "sqlite3 %s < %s", my_db, sys_db);
 
-    /* System version */
+    /* System version */	// 什么是version file？？
     if (NULL == (ver_FP = fopen(sys_ver, "r"))) {
         OUTPUT(("%s", _ERROR("Error: unable to open sys DB version file")));
         goto CLEAN_UP;
     }
-    if (0 == fscanf(ver_FP, "%s", sys_ver_str)) {
+    if (0 == fscanf(ver_FP, "%s", sys_ver_str)) {	// 读里面存放的内容(版本号)
         OUTPUT(("%s", _ERROR("Error: unable to read sys DB version file")));
         fclose(ver_FP);
         goto CLEAN_UP;
@@ -101,7 +102,7 @@ static inline int perfexpert_database_update(char **file) {
     }
 
     /* Compare */
-    if (atof(my_ver_str) > atof(sys_ver_str)) {
+    if (atof(my_ver_str) > atof(sys_ver_str)) {		// 如果输入的版本号高，报错
         OUTPUT(("      local database is newer, reporting error"));
         goto CLEAN_UP;
     } else if (atof(my_ver_str) == atof(sys_ver_str)) {
@@ -116,7 +117,7 @@ static inline int perfexpert_database_update(char **file) {
         OUTPUT(("%s", _ERROR("Error: unable to create database from SQL")));
         goto CLEAN_UP;
     }
-    unlink(my_ver);
+    unlink(my_ver);		// 删除这个文件，下面重新创建
     if (PERFEXPERT_SUCCESS != perfexpert_util_file_copy(my_ver, sys_ver)) {
         goto CLEAN_UP;
     }
