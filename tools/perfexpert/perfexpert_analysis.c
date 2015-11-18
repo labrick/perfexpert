@@ -113,7 +113,9 @@ int analysis(void) {
 
     /* Arguments to run analyzer */
     // 运行了../analyzer/analyzer_main.c程序
-    // 这里也就是说根本就没有给analyzer传递参数，应该都在globals中
+    // 这里也就是说根本就没有给analyzer传递参数
+    // 这里的参数不是通过globals传递，因为这里的globals analyzer是无法访问的
+    // 它访问的只是其自身的globals
     argv[0] = ANALYZER_PROGRAM;
     argv[1] = NULL;
 
