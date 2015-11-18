@@ -113,12 +113,11 @@ int analysis(void) {
 
     /* Arguments to run analyzer */
     // 运行了../analyzer/analyzer_main.c程序
+    // 这里也就是说根本就没有给analyzer传递参数，应该都在globals中
     argv[0] = ANALYZER_PROGRAM;
     argv[1] = NULL;
 
     /* The super-ninja test sctructure */
-    // 我要看到这里的指令是什么，并且要解释清楚
-    //
     bzero(temp_str[0], BUFFER_SIZE);
     sprintf(temp_str[0], "%s/%s", globals.stepdir, ANALYZER_OUTPUT);
     test.output = temp_str[0];
@@ -127,7 +126,6 @@ int analysis(void) {
     test.info = temp_str[6];
 
     /* run_and_fork_and_pray */
-    // 执行
     return fork_and_wait(&test, argv);
 }
 
