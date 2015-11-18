@@ -26,3 +26,4 @@ tools/pr/Makefile.in
 tools/pr/c_loop1/Makefile.in
 tools/pr/c_loop2/Makefile.in
 tools/recommender/Makefile.in
+tags
