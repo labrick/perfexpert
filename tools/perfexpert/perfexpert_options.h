@@ -38,6 +38,7 @@ const char *argp_program_version = PACKAGE_STRING;
 const char *argp_program_bug_address = PACKAGE_BUGREPORT;
 
 /* Structure to handle command line arguments */
+// 参数列表在这里定义
 static struct argp_option options[] = {
 #if HAVE_CODE_TRANSFORMATION
     { 0, 0, 0, 0, "Automatic optimization options:", 1,
@@ -113,16 +114,16 @@ static char doc[] = "\nPerfExpert -- an easy-to-use automatic performance "
     "\n                      starts with a dash sign ('-')";
 
 typedef struct arg_options {
-    char *program;
-    char **program_argv;
+    char *program;		// 第一个无标识参数为该程序(二进制)TARGET
+    char **program_argv;	// 紧跟target_program之后的第二个参数为该参数
     char *program_argv_temp[PARAM_SIZE];
-    char *prefix;
-    char *before;
-    char *after;
-    char *knc_prefix;
-    char *knc_before;
-    char *knc_after;
-    int  do_not_run;
+    char *prefix;		// PerfExpert工具运行前需要执行的COMMAND
+    char *before;		// TARGET运行前需要执行的COMMAND
+    char *after;		// TARGET运行后需要执行的COMMAND
+    char *knc_prefix;	// knc命令之前是否要运行一个程序
+    char *knc_before;	// 之前
+    char *knc_after;	// 每次TARGET文件执行后都要运行knc
+    int  do_not_run;	// 不要运行PerfExpert，仅仅分析命令行
 } arg_options_t;
 
 /* Function declarations */

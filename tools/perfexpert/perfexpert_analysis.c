@@ -46,6 +46,8 @@ int analysis(void) {
     OUTPUT(("%s", _YELLOW("Analysing measurements")));
 
     /* Set some environment variables to avoid working arguments */
+    // 这里设置了环境变量
+    // $PERFEXPERT_ANALYZER_VERBOSE_LEVEL = globals.verbose
     bzero(temp_str[1], BUFFER_SIZE);
     sprintf(temp_str[1], "%d", globals.verbose);
     if (0 != setenv("PERFEXPERT_ANALYZER_VERBOSE_LEVEL", temp_str[1], 0)) {
@@ -53,6 +55,7 @@ int analysis(void) {
         return PERFEXPERT_ERROR;
     }
     bzero(temp_str[2], BUFFER_SIZE);
+    // $PERFEXPERT_ANALYZER_COLORFUL = temp_str[2]
     sprintf(temp_str[2], "%d", globals.colorful);
     if (0 != setenv("PERFEXPERT_ANALYZER_COLORFUL", temp_str[2], 0)) {
         OUTPUT(("%s", _ERROR("Error: unable to set environment variable")));
@@ -109,6 +112,7 @@ int analysis(void) {
     }
 
     /* Arguments to run analyzer */
+    // 运行了../analyzer/analyzer_main.c程序
     argv[0] = ANALYZER_PROGRAM;
     argv[1] = NULL;
 
@@ -117,9 +121,11 @@ int analysis(void) {
     sprintf(temp_str[0], "%s/%s", globals.stepdir, ANALYZER_OUTPUT);
     test.output = temp_str[0];
     test.input = NULL;
+    // temp_str[6]是分析报告
     test.info = temp_str[6];
 
     /* run_and_fork_and_pray */
+    // 执行
     return fork_and_wait(&test, argv);
 }
 

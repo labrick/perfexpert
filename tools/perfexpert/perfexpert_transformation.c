@@ -35,6 +35,7 @@ extern "C" {
 #include "perfexpert_constants.h"
 
 /* transformation */
+// 什么叫转换？转换什么？
 int transformation(void) {
     char temp_str[6][BUFFER_SIZE];
     char *argv[2];
@@ -57,6 +58,7 @@ int transformation(void) {
         return PERFEXPERT_ERROR;
     }
     bzero(temp_str[3], BUFFER_SIZE);
+    // 这些pid有啥用？
     sprintf(temp_str[3], "%d", (int)getpid());
     if (0 != setenv("PERFEXPERT_CT_PID", temp_str[3], 1)) {
         OUTPUT(("%s", _ERROR("Error: unable to set environment variable")));
@@ -84,6 +86,7 @@ int transformation(void) {
     }
 
     /* Arguments to run analyzer */
+    // ct是啥？
     argv[0] = CT_PROGRAM;
     argv[1] = NULL;
 

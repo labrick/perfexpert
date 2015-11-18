@@ -38,8 +38,9 @@ extern "C" {
 #include "perfexpert_string.h"
 #include "perfexpert_util.h"
 
+// 在.h文件中已定义了options结构体
 static struct argp argp = { options, parse_options, args_doc, doc };
-static arg_options_t arg_options = { 0 };
+static arg_options_t arg_options = { 0 };		// 全局结构体
 
 /* parse_cli_params */
 int parse_cli_params(int argc, char *argv[]) {
@@ -50,10 +51,13 @@ int parse_cli_params(int argc, char *argv[]) {
         OUTPUT(("%s running PerfExpert in compatibility mode",
             _BOLDRED("WARNING:")));
         OUTPUT((""));
+		// 如果运行的是perfexpert_run_exp，则这是以兼容模式运行。
+		// 什么是兼容模式？？
         globals.compat_mode = PERFEXPERT_TRUE;
     }
 
     /* Set default values for globals */
+	// 这个结构体通过argp_parse和gnu argp关联起来
     arg_options = (arg_options_t) {
         .program           = NULL,
         .program_argv      = NULL,
@@ -68,15 +72,19 @@ int parse_cli_params(int argc, char *argv[]) {
     };
 
     /* If some environment variable is defined, use it! */
+	// 从环境变量中获得所需要的值，但是环境变量又是谁设置的呢？
     if (PERFEXPERT_SUCCESS != parse_env_vars()) {
         OUTPUT(("%s", _ERROR("Error: parsing environment variables")));
         return PERFEXPERT_ERROR;
     }
 
     /* Parse arguments */
+	// gnu lib: error_t argp_parse (const struct argp *argp, int argc, char **argv, unsigned flags, int *arg_index, void *input)
+	// 就是把**argv中的参数拆分放入globals呗
     argp_parse(&argp, argc, argv, 0, 0, &globals);
 
     /* Expand AFTERs, BEFOREs, PREFIXs and program arguments */
+	// 把前者按空格拆分开放入分组放入后者:after中是指令，各个指令的指针交给globals
     if (NULL != arg_options.after) {
         perfexpert_string_split(perfexpert_string_remove_spaces(
             arg_options.after), globals.after, ' ');
@@ -84,7 +92,7 @@ int parse_cli_params(int argc, char *argv[]) {
     if (NULL != arg_options.before) {
         perfexpert_string_split(perfexpert_string_remove_spaces(
             arg_options.before), globals.before, ' ');
-    }
+   }
     if (NULL != arg_options.prefix) {
         perfexpert_string_split(perfexpert_string_remove_spaces(
             arg_options.prefix), globals.prefix, ' ');
@@ -101,6 +109,8 @@ int parse_cli_params(int argc, char *argv[]) {
         perfexpert_string_split(perfexpert_string_remove_spaces(
             arg_options.knc_prefix), globals.knc_prefix, ' ');
     }
+	// 上面arg_options中放入的都是指令
+	// 下面再次拆分TARGET程序的参数
     while (NULL != arg_options.program_argv[i]) {
         int j = 0;
 
@@ -120,15 +130,15 @@ int parse_cli_params(int argc, char *argv[]) {
         return PERFEXPERT_ERROR;
     }
 
-    /* Sanity check: threshold is mandatory */
+    /* Sanity check: threshold is mandatory [0,1] */
     if ((0 >= globals.threshold) || (1 < globals.threshold)) {
         OUTPUT(("%s", _ERROR("Error: undefined or invalid threshold")));
         return PERFEXPERT_ERROR;
     }
 
     /* Sanity check: NULL program */
-    if (NULL != arg_options.program) {
-        if (PERFEXPERT_SUCCESS != perfexpert_util_filename_only(
+    if (NULL != arg_options.program) {		// TARGET需要存在
+        if (PERFEXPERT_SUCCESS != perfexpert_util_filename_only(	// 不包含路径名
             arg_options.program, &(globals.program))) {
             OUTPUT(("%s", _ERROR("Error: unable to extract program name")));
             return PERFEXPERT_ERROR;
@@ -144,12 +154,13 @@ int parse_cli_params(int argc, char *argv[]) {
 
         PERFEXPERT_ALLOC(char, globals.program_full,
             (strlen(globals.program) + strlen(globals.program_path) + 2));
+		// 结合为完整路径
         sprintf(globals.program_full, "%s/%s", globals.program_path,
             globals.program);
         OUTPUT_VERBOSE((1, "   program full path=[%s]", globals.program_full));
 
         if ((NULL == globals.sourcefile) && (NULL == globals.target) &&
-            (PERFEXPERT_SUCCESS != perfexpert_util_file_is_exec(
+            (PERFEXPERT_SUCCESS != perfexpert_util_file_is_exec(	// 文件可执行
                 globals.program_full))) {
             OUTPUT(("%s (%s)", _ERROR("Error: unable to find program"),
                 globals.program_full));
@@ -161,6 +172,7 @@ int parse_cli_params(int argc, char *argv[]) {
     }
 
     /* Sanity check: target and sourcefile at the same time */
+	// 这两个只能有一个存在
     if ((NULL != globals.target) && (NULL != globals.sourcefile)) {
         OUTPUT(("%s", _ERROR("Error: target and sourcefile are both defined")));
         return PERFEXPERT_ERROR;
@@ -270,54 +282,62 @@ int parse_cli_params(int argc, char *argv[]) {
 static error_t parse_options(int key, char *arg, struct argp_state *state) {
     switch (key) {
         /* Should I run some program after each execution? */
-        case 'a':
+        // -a=COMMAND: 每一次运行TARGET文件之后都要运行COMMAND
+		case 'a':
             arg_options.after = arg;
             OUTPUT_VERBOSE((1, "option 'a' set [%s]", arg_options.after));
             break;
 
         /* Should I run on the KNC some program after each execution? */
+		// 每次执行TARGET文件之后都要运行KNC
         case 'A':
             arg_options.knc_after = arg;
             OUTPUT_VERBOSE((1, "option 'A' set [%s]", arg_options.knc_after));
             break;
 
         /* Should I run some program before each execution? */
+        // -a=COMMAND: 每一次运行TARGET文件之前都要运行COMMAND
         case 'b':
             arg_options.before = arg;
             OUTPUT_VERBOSE((1, "option 'b' set [%s]", arg_options.before));
             break;
 
         /* Should I run on the KNC some program before each execution? */
+		// 之前 KNC
         case 'B':
             arg_options.knc_before = arg;
             OUTPUT_VERBOSE((1, "option 'B' set [%s]", arg_options.knc_before));
             break;
 
-        /* Activate colorful mode */
+        /* Activate colorful mode : -c: 激活ANSI颜色机制 */
         case 'c':
             globals.colorful = PERFEXPERT_TRUE;
             OUTPUT_VERBOSE((1, "option 'c' set"));
             break;
 
         /* MIC card */
+		// 这是啥？？？
         case 'C':
             globals.knc = arg;
             OUTPUT_VERBOSE((1, "option 'C' set [%s]", globals.knc));
             break;
 
         /* Which database file? */
+		// -d=FILE: 设置新的建议数据库文件
         case 'd':
             globals.dbfile = arg;
             OUTPUT_VERBOSE((1, "option 'd' set [%s]", globals.dbfile));
             break;
 
         /* Only experiments */
+		// -e: 告诉PerfExpert仅仅运行TARGET程序，不要执行分析(为后面手动分析作准备)
         case 'e':
             globals.only_exp = PERFEXPERT_TRUE;
             OUTPUT_VERBOSE((1, "option 'e' set"));
             break;
 
         /* Leave the garbage there? */
+		// -g: perfexpert程序运行结束后不要删除临时目录
         case 'g':
             globals.leave_garbage = PERFEXPERT_TRUE;
             OUTPUT_VERBOSE((1, "option 'g' set"));
@@ -330,95 +350,105 @@ static error_t parse_options(int key, char *arg, struct argp_state *state) {
             argp_state_help(state, stdout, ARGP_HELP_STD_HELP);
             break;
 
-        /* Which input file? */
+        /* Which input file? : -i=FILE: TARGET程序(二进制) */
+		// 和-s(设置源码)不同时存在
         case 'i':
             globals.inputfile = arg;
             OUTPUT_VERBOSE((1, "option 'i' set [%s]", globals.inputfile));
             break;
 
         /* Verbose level (has an alias: v) */
+		// 需要多详细的信息？level
         case 'l':
             globals.verbose = arg ? atoi(arg) : 5;
             OUTPUT_VERBOSE((1, "option 'l' set [%d]", globals.verbose));
             break;
 
-        /* Use Makefile? */
+        /* Use Makefile? : -m=TARGET: 使用make命令编译该TARGET(makefile) */
         case 'm':
             globals.target = arg;
             OUTPUT_VERBOSE((1, "option 'm' set [%s]", globals.target));
             break;
 
         /* Do not run */
+		// 不要运行PerfExpert，仅仅分析命令行
         case 'n':
             arg_options.do_not_run = PERFEXPERT_TRUE;
             OUTPUT_VERBOSE((1, "option 'n' set [%d]", arg_options.do_not_run));
             break;
 
-        /* Sorting order */
+        /* Sorting order : -o=relevance|performance|mixed: hotspots在其中的顺序是怎样的 */
         case 'o':
             globals.order = arg;
             OUTPUT_VERBOSE((1, "option 'o' set [%s]", globals.order));
             break;
 
         /* Should I add a program prefix to the command line? */
+		// -p="COMMAND"分析指令执行之前运行这里的指令
         case 'p':
             arg_options.prefix = arg;
             OUTPUT_VERBOSE((1, "option 'p' set [%s]", arg_options.prefix));
             break;
 
         /* Should I add a program prefix to the KNC command line? */
+		// KNC 命令行之前是否要加入一个程序
         case 'P':
             arg_options.knc_prefix = arg;
             OUTPUT_VERBOSE((1, "option 'P' set [%s]", arg_options.knc_prefix));
             break;
 
         /* Number of recommendation to output */
+		// -r=COUNT: PerfExpert应该提供建议的条数
         case 'r':
             globals.rec_count = atoi(arg);
             OUTPUT_VERBOSE((1, "option 'r' set [%d]", globals.rec_count));
             break;
 
-        /* What is the source code filename? */
+        /* What is the source code filename? : -s=FILE: TARGET程序的源代码文件 */
+		// 多个采用-m=TARGET，TARGET为makefile文件进行编译
         case 's':
             globals.sourcefile = arg;
             OUTPUT_VERBOSE((1, "option 's' set [%s]", globals.sourcefile));
             break;
 
         /* Measurement tool */
+		// -t=hpctoolkit|vtune: 选择收集performance counter值的工具(默认为hpctoolkit)
         case 't':
             globals.tool = arg;
             OUTPUT_VERBOSE((1, "option 't' set [%s]", globals.tool));
             break;
 
         /* Verbose level (has an alias: l) */
+		// 激活verbose模式,默认等级为5，和l一样
         case 'v':
             globals.verbose = arg ? atoi(arg) : 5;
             OUTPUT_VERBOSE((1, "option 'v' set [%d]", globals.verbose));
             break;
 
         /* Arguments: threashold and target program and it's arguments */
+		// 阈值 TARGET 他的参数
         case ARGP_KEY_ARG:
             if (PERFEXPERT_TRUE == globals.compat_mode) {
-                globals.only_exp = PERFEXPERT_TRUE;
+                globals.only_exp = PERFEXPERT_TRUE;			// !@@!
                 OUTPUT_VERBOSE((1, "option 'e' set"));
-                globals.leave_garbage = PERFEXPERT_TRUE;
+                globals.leave_garbage = PERFEXPERT_TRUE;	// !@@!
                 OUTPUT_VERBOSE((1, "option 'g' set"));
-                arg_options.program = arg;
+                arg_options.program = arg;		// 第一个无标识参数为可执行程序
                 OUTPUT_VERBOSE((1, "option 'target_program' set [%s]",
                     arg_options.program));
-                globals.threshold = 1;
+                globals.threshold = 1;			// 直接设置阈值为1？？？
                 OUTPUT_VERBOSE((1, "option 'threshold' set [%f]",
                     globals.threshold));
                 arg_options.program_argv = &state->argv[state->next];
                 OUTPUT_VERBOSE((1, "option 'program_arguments' set"));
-                state->next = state->argc;
-            } else {
+                state->next = state->argc;		// 直接指向了最后一个了
+            } else {	// 兼容与否的区别在于TARGET与THRESHOLD的顺序？？
                 if (0 == state->arg_num) {
-                    globals.threshold = atof(arg);
+                    globals.threshold = atof(arg);	// 通过参数传入
                     OUTPUT_VERBOSE((1, "option 'threshold' set [%f] (%s)",
                         globals.threshold, arg));
                 }
-                if (1 == state->arg_num) {
+                if (1 == state->arg_num) {		// 这里为什么颠倒了呢？？？
                     arg_options.program = arg;
                     OUTPUT_VERBOSE((1, "option 'target_program' set [%s]",
                         arg_options.program));
@@ -436,11 +466,11 @@ static error_t parse_options(int key, char *arg, struct argp_state *state) {
         /* Too few options */
         case ARGP_KEY_END:
             if (PERFEXPERT_TRUE == globals.compat_mode) {
-                if (1 > state->arg_num) {
+                if (1 > state->arg_num) {	// 兼容模式程序只会执行一次，arg_num=1
                     argp_usage(state);
                 }
             } else {
-                if (2 > state->arg_num) {
+                if (2 > state->arg_num) {	// 非兼容模式程序执行了两次，arg_num=2
                     argp_usage(state);
                 }
             }
@@ -455,6 +485,7 @@ static error_t parse_options(int key, char *arg, struct argp_state *state) {
 
 /* parse_env_vars */
 static int parse_env_vars(void) {
+	// 现在是直接获取这些环境变量，但是系统的环境变量又是谁来设置的呢？
     if (NULL != getenv("PERFEXPERT_VERBOSE_LEVEL")) {
         globals.verbose = atoi(getenv("PERFEXPERT_VERBOSE_LEVEL"));
         OUTPUT_VERBOSE((1, "ENV: verbose_level=%d", globals.verbose));

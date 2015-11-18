@@ -76,6 +76,7 @@ int compile_program(void) {
             argc++;
         } while (argv[argc] = strtok(NULL, " "));
     }
+	// 只是形成了编译的指令，没有执行吧？
 
     /* If the user chose a Makefile... */
     if (NULL != globals.target) {
@@ -99,7 +100,7 @@ int compile_program(void) {
     }
 
     /* In both cases we should add a NULL */
-    argv[argc] = NULL;
+    argv[argc] = NULL;		// WHY?
 
     /* Not using OUTPUT_VERBOSE because I want only one line */
     if (8 <= globals.verbose) {

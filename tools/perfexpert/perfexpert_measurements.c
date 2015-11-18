@@ -49,6 +49,7 @@ int measurements(void) {
     }
 
     /* Call the measurement function for this tool */
+	// 应该是在这里执行的，但是里面执行的东西太多(hpctoolkit主要在这里运行)
     return globals.toolmodule.measurements();
 }
 

@@ -80,6 +80,7 @@ int main(int argc, char** argv) {
     };
 
     /* Parse command-line parameters */
+	// 分析执行该程序时输入的参数，将输入放入globals结构体，并按要求行事
     if (PERFEXPERT_SUCCESS != parse_cli_params(argc, argv)) {
         OUTPUT(("%s", _ERROR("Error: parsing command line arguments")));
         return PERFEXPERT_ERROR;
@@ -98,6 +99,8 @@ int main(int argc, char** argv) {
 
     /* If database was not specified, check if there is any local database and
      * if this database is update
+	 * 在一个新的文件中记录系统和输入的db版本号，如果新输入的版本号新则报错，
+	 * 相同则直接执行，输入的老，则更新输入的db，并将版本号更新为系统的
      */
     if (NULL == globals.dbfile) {
         if (PERFEXPERT_SUCCESS !=
@@ -106,6 +109,7 @@ int main(int argc, char** argv) {
             goto CLEANUP;
         }        
     } else {
+		// 输入的db文件存在
         if (PERFEXPERT_SUCCESS != perfexpert_util_file_exists(globals.dbfile)) {
             OUTPUT(("%s", _ERROR((char *)"Error: database file not found")));
             goto CLEANUP;
@@ -118,6 +122,7 @@ int main(int argc, char** argv) {
         /* Create step working directory */
         PERFEXPERT_ALLOC(char, globals.stepdir, (strlen(globals.workdir) + 5));
         sprintf(globals.stepdir, "%s/%d", globals.workdir, globals.step);
+		// mkdir -p stepdir，创建临时工作目录
         if (PERFEXPERT_ERROR == perfexpert_util_make_path(globals.stepdir,
             0755)) {
             OUTPUT(("%s", _ERROR((char *)"Error: cannot create step workdir")));
@@ -137,12 +142,14 @@ int main(int argc, char** argv) {
         }
 
         /* Call measurement tool */
+        // 这里都是干了什么事？这个先不管
         if (PERFEXPERT_SUCCESS != measurements()) {
             OUTPUT(("%s", _ERROR("Error: while taking measurements")));
             goto CLEANUP;
         }
 
         /* Escape to perfexpert_run_exp */
+        // 如果设置了仅仅执行TARGET，不分析，则直接退出
         if (PERFEXPERT_TRUE == globals.only_exp) {
             OUTPUT((""));
             OUTPUT(("%s the performance measurements collected are available",
@@ -157,6 +164,7 @@ int main(int argc, char** argv) {
         }
 
         /* Call analyzer */
+        // ../analyzer/analyzer_main.c程序
         switch ((rc = analysis())) {
             case PERFEXPERT_FAILURE:
             case PERFEXPERT_ERROR:
