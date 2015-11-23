@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2011-2013  University of Texas at Austin. All rights reserved.
+# Copyright (c) 2011-2015  University of Texas at Austin. All rights reserved.
 #
 # $COPYRIGHT$
 #
@@ -14,7 +14,7 @@
 # WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
 # A PARTICULAR PURPOSE.
 # 
-# Authors: Leonardo Fialho and Ashay Rane
+# Authors: Antonio Gomez-Iglesias, Leonardo Fialho and Ashay Rane
 #
 # $HEADER$
 #
@@ -22,6 +22,6 @@
 lib_LIBRARIES = libmrt.a
 
 libmrt_a_SOURCES = mrt.cpp
-libmrt_a_CXXFLAGS = -I$(srcdir) -I$(srcdir)/../common
+libmrt_a_CXXFLAGS = -I$(srcdir) -I$(srcdir)/../common -ldl
 
 include_HEADERS = mrt.h ../common/macpo_record.h

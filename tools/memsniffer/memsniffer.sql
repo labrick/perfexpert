@@ -19,6 +19,9 @@
 -- $HEADER$
 --
 
+-- Generated using memsniffer
+-- version 1.0
+
 --
 -- Create tables if not exist
 --

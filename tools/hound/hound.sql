@@ -19,6 +19,9 @@
 -- $HEADER$
 --
 
+-- Generated using hound
+-- version 2.0
+
 --
 -- Create tables if not exist
 --

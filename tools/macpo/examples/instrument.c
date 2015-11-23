@@ -4,7 +4,7 @@
 
 #define NUM_THREADS         8
 #define ITERATIONS          128
-#define RANDOM_BUFFER_SIZE  51200
+#define RANDOM_BUFFER_SIZE  51200000
 #define REPEAT_COUNT        81290
 
 typedef struct {
