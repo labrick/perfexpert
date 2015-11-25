@@ -64,50 +64,62 @@ static void show_help(void) {
 
 /* parse_env_vars */
 static int parse_env_vars(void) {
+    // 这里不说globals都是指perfexpert中的globals
+    // globals.verbose
     if (NULL != getenv("PERFEXPERT_ANALYZER_VERBOSE_LEVEL")) {
         globals.verbose = atoi(getenv("PERFEXPERT_ANALYZER_VERBOSE_LEVEL"));
         OUTPUT_VERBOSE((1, "ENV: verbose_level=%d", globals.verbose));
     }
     // No variable for -a --aggregate
+    // globals.colorful
     if ((NULL != getenv("PERFEXPERT_ANALYZER_COLORFUL")) &&
         (PERFEXPERT_TRUE == atoi(getenv("PERFEXPERT_ANALYZER_COLORFUL")))) {
         globals.colorful = PERFEXPERT_TRUE;
         OUTPUT_VERBOSE((1, "ENV: colorful=YES"));
     }
     // No variable for -h --help
+    // globals.toolmodule.profile_file
     if (NULL != getenv("PERFEXPERT_ANALYZER_INPUT_FILE")) {
         globals.inputfile = getenv("PERFEXPERT_ANALYZER_INPUT_FILE");
         OUTPUT_VERBOSE((1, "ENV: inputfile=%s", globals.inputfile));
     }
+    // PERFEXPERT_ETCDIR/LCPI_FILE，perfexpert中没有这个文件
     if (NULL != getenv("PERFEXPERT_ANALYZER_LCPI_FILE")) {
         globals.lcpifile = getenv("PERFEXPERT_ANALYZER_LCPI_FILE");
         OUTPUT_VERBOSE((1, "ENV: lcpifile=%s", globals.lcpifile));
     }
+    // globals.tool
     if (NULL != getenv("PERFEXPERT_ANALYZER_TOOL")) {
         globals.tool = getenv("PERFEXPERT_ANALYZER_TOOL");
         OUTPUT_VERBOSE((1, "ENV: tool=%s", globals.tool));
     }
+    // PERFEXPERT_ETCDIR/MACHINE_FILE，perfexpert中也没有这个文件
     if (NULL != getenv("PERFEXPERT_ANALYZER_MACHINE_FILE")) {
         globals.machinefile = getenv("PERFEXPERT_ANALYZER_MACHINE_FILE");
         OUTPUT_VERBOSE((1, "ENV: machinefile=%s", globals.machinefile));
     }
+    // 需要产生的文件globals.stepdir/ANALYZER_REPORT
     if (NULL != getenv("PERFEXPERT_ANALYZER_OUTPUT_FILE")) {
         globals.outputfile = getenv("PERFEXPERT_ANALYZER_OUTPUT_FILE");
         OUTPUT_VERBOSE((1, "ENV: outputfile=%s", globals.outputfile));
     }
+    // globals.order
     if (NULL != getenv("PERFEXPERT_ANALYZER_SORTING_ORDER")) {
         globals.order = getenv("PERFEXPERT_ANALYZER_SORTING_ORDER");
         OUTPUT_VERBOSE((1, "ENV: order=%s", globals.order));
     }
+    // globals.threshold 这个含义含不够明确
     if (NULL != getenv("PERFEXPERT_ANALYZER_THRESHOLD")) {
         globals.threshold = atof(getenv("PERFEXPERT_ANALYZER_THRESHOLD"));
         OUTPUT_VERBOSE((1, "ENV: threshold=%f", globals.threshold));
     }
     // No variable for -T --thread
+    // globals.stepdir/ANALYZER_METRICS，perfexpert中没看到使用
     if (NULL != getenv("PERFEXPERT_ANALYZER_METRICS_FILE")) {
         globals.outputmetrics = getenv("PERFEXPERT_ANALYZER_METRICS_FILE");
         OUTPUT_VERBOSE((1, "ENV: outputmetrics=%s", globals.outputmetrics));
     }
+    // globals.stepdir
     if (NULL != getenv("PERFEXPERT_ANALYZER_WORKDIR")) {
         globals.workdir = getenv("PERFEXPERT_ANALYZER_WORKDIR");
         OUTPUT_VERBOSE((1, "ENV: workdir=%s", globals.workdir));
@@ -254,13 +266,14 @@ int parse_cli_params(int argc, char *argv[]) {
     }
 
     /* Sanity check: inputfile is mandatory */
+    // 输入文件必须存在，但是没看到这个文件的产生啊
     if (NULL == globals.inputfile) {
         OUTPUT(("%s", _ERROR("Error: undefined input file")));
         show_help();
         return PERFEXPERT_ERROR;
     }
 
-    /* Sanity check: thread ID must be <= 0, but -1 means NO_THREADS */
+    /* Sanity check: thread ID must be >= 0, but -1 means NO_THREADS */
     if (-1 > globals.thread) {
         OUTPUT(("%s", _ERROR("Error: invalid thread ID")));
         show_help();

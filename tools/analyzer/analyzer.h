@@ -42,23 +42,23 @@ extern "C" {
 
 /* Structure to hold global variables */
 typedef struct {
-    int      verbose;
+    int      verbose;       // 信息输出的详细程度(default:0)
     int      colorful; // These should be the first variables in the structure
-    double threshold;
-    char     *tool;
+    double threshold;       // 确定代码瓶颈的相关性(运行时)([0,1])
+    char     *tool;             // 收集performance measurements的工具(default:hpctoolkit)
     perfexpert_module_t toolmodule;
-    char     *inputfile;
-    char     *outputfile;
+    char     *inputfile;        // 性能measurements的输入文件
+    char     *outputfile;       // 性能分析的输出文件(default:STDOUT)
     FILE     *outputfile_FP;
-    int      aggregate;
-    int      thread;
-    char     *machinefile;
+    int      aggregate;         // 显示整个程序的信息而不是显示每个hotspot的信息
+    int      thread;            // 仅仅显示特定线程ID的信息
+    char     *machinefile;      // 硬件特征的输入文件(default:MACHINE_FILE)
     metric_t *machine_by_name;
-    char     *lcpifile;
-    lcpi_t   *lcpi_by_name;
+    char     *lcpifile;         // LCPI指标的输入文件，默认PERFEXPERT_ETCDIR/CLPI_FILE
+    lcpi_t   *lcpi_by_name;     // lcpi信息都在这里
     char     *outputmetrics;
-    char     *order;
-    char     *workdir;
+    char     *order;            // hotspot的排序情况(relevance|performance|mixed)
+    char     *workdir;          // 临时的工作目录的创建路径
     int      found_hotspots;
 } globals_t;
 

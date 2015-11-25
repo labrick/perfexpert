@@ -61,6 +61,7 @@ int lcpi_parse_file(const char *file) {
         line++;
 
         /* Ignore comments and blank lines */
+        // 很可能也是手动写入的
         if ((0 == strncmp("#", buffer, 1)) ||
             (strspn(buffer, " \t\r\n") == strlen(buffer))) {
             continue;
@@ -85,6 +86,7 @@ int lcpi_parse_file(const char *file) {
         strcpy(lcpi->name_md5, perfexpert_md5_string(lcpi->name));
 
         token = strtok(NULL, "=");
+        // lcpi->name = lcpi->expression
 		// Create evaluator object from string containing mathematical 
 		// representation of function. Evaluator object could be used later 
 		// to evaluate function for specific variable values or to calculate 
@@ -97,9 +99,8 @@ int lcpi_parse_file(const char *file) {
         }
 
         /* Add LCPI to global hash of LCPIs */
-		// hash方面的一些计算，不断的进行重定义，可烦人
-		// 也就是把上面处理得到的信息得到合理的存储
-		// 将lcpi和lcpi_by_name通过hash表关联？？？
+        // 这里的意思好像是将lcpi信息加入以lcpi_by_name为首地址的
+        // hash表中进行存储，存储的数据类型为lcpi_t，name_md5是key值
         perfexpert_hash_add_str(globals.lcpi_by_name, name_md5, lcpi);
 
         OUTPUT_VERBOSE((7, "   [%s]=[%s] (%s)", lcpi->name,

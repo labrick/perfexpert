@@ -54,7 +54,7 @@ int main(int argc, char **argv) {
         .machine_by_name = NULL,             // metric_t *
         .lcpifile        = NULL,             // char *		// 运行微benchmark后生成 YANG
         .lcpi_by_name    = NULL,             // lcpi_t *
-        .verbose         = 0,                // int			// 这个是干嘛的？
+        .verbose         = 0,                // int			// 信息输出的详细程度
         .colorful        = PERFEXPERT_FALSE, // int
         .order           = "none",           // char *
         .found_hotspots  = PERFEXPERT_FALSE, // int
@@ -72,7 +72,8 @@ int main(int argc, char **argv) {
     }
 
     /* Set default values */
-	// 构建完整路径放入machinefile和lcpifile
+	// 如果这些文件不存在，构建完整路径放入machinefile和lcpifile
+    // 这是说这是这两个文件的默认路径？实际上文件是存在的？
     if (NULL == globals.machinefile) {
         PERFEXPERT_ALLOC(char, globals.machinefile,
             (strlen(PERFEXPERT_ETCDIR) + strlen(MACHINE_FILE) + 2));
@@ -101,6 +102,7 @@ int main(int argc, char **argv) {
 	//---------------------------------
     /* Parse LCPI metrics */
 	// 分析LCPI指标文件，也就是将lcpifile中名称/公式通过hash表合理存储
+    // 这里的内容并不是最重要的，有更好，没有也无所谓，因为这些内容会从globals.inputfile中分析出
     if (PERFEXPERT_SUCCESS != lcpi_parse_file(globals.lcpifile)) {
         OUTPUT(("%s (%s)", _ERROR("Error: LCPI file is not valid"),
             globals.lcpifile));
@@ -126,12 +128,12 @@ int main(int argc, char **argv) {
     }
 
     /* Check and flatten profiles */
-	// 也就是把profiles(循环)->callees(循环)->callpaths(循环)三个循环全部遍历
-	// 但是每个循环里存储的是什么信息呢？？？
+	// 也就是把profiles(循环)->callees(循环)->callpaths(循环)三个循环打印输出
     if (PERFEXPERT_SUCCESS != profile_check_all(&profiles)) {
         OUTPUT(("%s", _ERROR("Error: checking profile")));
         return PERFEXPERT_ERROR;
     }
+    // 根据aggregate参数整合所有的hotspot
     if (PERFEXPERT_SUCCESS != profile_flatten_all(&profiles)) {
         OUTPUT(("%s (%s)", _ERROR("Error: flatening profiles"),
             globals.inputfile));

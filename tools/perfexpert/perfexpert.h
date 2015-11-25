@@ -52,9 +52,9 @@ typedef struct {
     int   step;				// 处理过程标记进行到第几步，并由此产生这一步的工作目录
     char  *workdir;			// 工作目录的路径
     char  *stepdir;			// 处理过程中所用的工作目录
-    char  *prefix[PARAM_SIZE];
-    char  *before[PARAM_SIZE];
-    char  *after[PARAM_SIZE];
+    char  *prefix[PARAM_SIZE];  // 这里的指令在TARGET运行之前运行
+    char  *before[PARAM_SIZE];  // 每次TARGET运行之前要运行的命令
+    char  *after[PARAM_SIZE];   // 之后....
     char  *knc;			// 这是个程序？？
     char  *knc_prefix[PARAM_SIZE];
     char  *knc_before[PARAM_SIZE];

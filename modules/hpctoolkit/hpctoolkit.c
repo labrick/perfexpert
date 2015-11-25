@@ -85,12 +85,17 @@ int perfexpert_tool_measurements(void) {
 }
 
 /* run_hpcstruct */
+// hpcstruct recovers the static program structure of fully optimized 
+// object code for use with an HPCToolkit correlation tool.
 static int run_hpcstruct(void) {
     char *argv[5];
     int rc = PERFEXPERT_SUCCESS;
     test_t test;
 
     /* Arguments to run hpcstruct */
+    // hpcstruct --output globals.stepdir/program.hpcstruct program_full
+    // 产生了输出文件globals.stepdir/program.hpcstruct 默认输出也是这个
+    // 目的是高度优化二进制代码(c/c++/Fortran)  
     argv[0] = HPCSTRUCT;
     argv[1] = "--output";
     PERFEXPERT_ALLOC(char, argv[2],
@@ -127,6 +132,11 @@ static int run_hpcstruct(void) {
 }
 
 /* run_hpcrun */
+// hpcrun is a call path profiler based on statistical sampling. hpcrun 
+// profiles complex applications that use forks, execs, threads, and 
+// dynamic linking/unlinking; it may be used in conjuction with parallel 
+// process launchers such as MPICH's mpiexec and SLURM's srun.
+// 里面要运行的东西比较多，应该就是MicroBench
 static int run_hpcrun(void) {
     struct timespec time_start, time_end, time_diff;
     FILE *exp_file_FP;
@@ -141,16 +151,20 @@ static int run_hpcrun(void) {
     perfexpert_list_t experiments;
 
     /* Open experiment file (it is a list of arguments which I use to run) */
+    // 就是运行hpcrun的一些列参数(运行次数比较多)
     PERFEXPERT_ALLOC(char, exp_file, (strlen(PERFEXPERT_ETCDIR) +
         strlen(PERFEXPERT_TOOL_EXPERIMENT_FILE) + 2));
     sprintf(exp_file, "%s/%s", PERFEXPERT_ETCDIR,
         PERFEXPERT_TOOL_EXPERIMENT_FILE);
+    // exp_file = PERFEXPERT_ETCDIR/experiment_hpctoolkit.conf
 
+    // 这里直接以读方式打开，是说这里是输入文件吗？
     if (NULL == (exp_file_FP = fopen(exp_file, "r"))) {
         OUTPUT(("%s (%s)", _ERROR("Error: unable to open file"), exp_file));
         PERFEXPERT_DEALLOC(exp_file);
         return PERFEXPERT_ERROR;
     }
+    // 这是无论如何都会free掉
     PERFEXPERT_DEALLOC(exp_file);
 
     /* Initiate the list of experiments */
@@ -159,6 +173,8 @@ static int run_hpcrun(void) {
     bzero(buffer, BUFFER_SIZE);
     while (NULL != fgets(buffer, BUFFER_SIZE - 1, exp_file_FP)) {
         /* Ignore comments and blank lines */
+        // 这个是手动编写的?
+        // 一行一个
         if ((0 == strncmp("#", buffer, 1)) ||
             (strspn(buffer, " \t\r\n") == strlen(buffer))) {
             continue;
@@ -168,6 +184,7 @@ static int run_hpcrun(void) {
         buffer[strlen(buffer) - 1] = '\0';
 
         /* Is this line a new experiment? */
+        // "%"开头为新的experiment
         if (0 == strncmp("%", buffer, 1)) {
             /* Create a list item for this code experiment */
             PERFEXPERT_ALLOC(experiment_t, experiment, sizeof(experiment_t));
@@ -178,6 +195,7 @@ static int run_hpcrun(void) {
             experiment->argc = 0;
 
             /* Add PREFIX to argv */
+            // 这一段指令在HPCRUN运行之前运行
             i = 0;
             while (NULL != globals.prefix[i]) {
                 experiment->argv[experiment->argc] = globals.prefix[i];
@@ -186,6 +204,7 @@ static int run_hpcrun(void) {
             }
 
             /* Arguments to run hpcrun */
+            // prefix中的COMMAND hpcrun --output stepdir/measurements
             experiment->argv[experiment->argc] = HPCRUN;
             experiment->argc++;
             experiment->argv[experiment->argc] = "--output";
@@ -201,6 +220,8 @@ static int run_hpcrun(void) {
         }
 
         /* Read event */
+        // 不是注释也不是experiment，它是event
+        // ...... --event event_name 还可以加上采样率？
         experiment->argv[experiment->argc] = "--event";
         experiment->argc++;
         PERFEXPERT_ALLOC(char, experiment->argv[experiment->argc],
@@ -219,13 +240,16 @@ static int run_hpcrun(void) {
         input_line++;
 
         /* Run the BEFORE program */
+        // 这里可能干了什么呢？
         if (NULL != globals.before[0]) {
             PERFEXPERT_ALLOC(char, test.output, (strlen(globals.stepdir) + 20));
+            // BEFORE运行输出：stepdir/before.input_line.output
             sprintf(test.output, "%s/before.%d.output", globals.stepdir,
                 input_line);
             test.input = NULL;
             test.info = globals.before[0];
 
+            // 先运行before程序
             if (0 != fork_and_wait(&test, (char **)globals.before)) {
                 OUTPUT(("   %s", _RED("error running 'before' command")));
             }
@@ -233,6 +257,7 @@ static int run_hpcrun(void) {
         }
 
         /* Ok, now we have to add the program and... */
+        // TARGET
         experiment->argv[experiment->argc] = globals.program_full;
         experiment->argc++;
 
@@ -248,11 +273,13 @@ static int run_hpcrun(void) {
         experiment->argv[experiment->argc] = NULL;
 
         /* The super-ninja test sctructure */
+        // 输出:stepdir/hpcrun.input_line.output
         PERFEXPERT_ALLOC(char, experiment->test.output,
             (strlen(globals.stepdir) + 20));
         sprintf(experiment->test.output, "%s/hpcrun.%d.output", globals.stepdir,
             input_line);
         experiment->test.input = globals.inputfile;
+        // TARGET的输入文件
         experiment->test.info = globals.program;
 
         /* Not using OUTPUT_VERBOSE because I want only one line */
@@ -265,6 +292,13 @@ static int run_hpcrun(void) {
         }
 
         /* (HPC)run program and test return code (should I really test it?) */
+        // CLOCK_REALTIME:系统实时时间,随系统实时时间改变而改变,
+        // 即从UTC1970-1-1 0:0:0开始计时,
+        // 中间时刻如果系统时间被用户改成其他,则对应的时间相应改变
+        // CLOCK_MONOTONIC:从系统启动这一刻起开始计时,
+        // 不受系统时间被用户改变的影响
+        // CLOCK_PROCESS_CPUTIME_ID:本进程到当前代码系统CPU花费的时间
+        // CLOCK_THREAD_CPUTIME_ID:本线程到当前代码系统CPU花费的时间
         clock_gettime(CLOCK_MONOTONIC, &time_start);
         switch (fork_and_wait(&(experiment->test), (char **)experiment->argv)) {
             case PERFEXPERT_ERROR:
@@ -283,6 +317,7 @@ static int run_hpcrun(void) {
                 break;
         }
         clock_gettime(CLOCK_MONOTONIC, &time_end);
+        // 计算从开始到结束的时间
         perfexpert_time_diff(&time_diff, &time_start, &time_end);
         OUTPUT(("   [%d] %lld.%.9ld seconds (includes measurement overhead)",
             input_line, (long long)time_diff.tv_sec, time_diff.tv_nsec));
@@ -478,12 +513,17 @@ static int run_hpcrun_knc(void) {
 }
 
 /* run_hpcprof */
+// hpcprof analyzes call path profile performance measurements, 
+// attributes them to static source code structure, and generates 
+// an Experiment database
 static int run_hpcprof(void) {
     int rc = PERFEXPERT_SUCCESS;
     char *argv[9];
     test_t test;
 
     /* Arguments to run hpcprof */
+    // hpcprof --force-metric --metric=thread --struct stepdir/program
+    // --output stepdir/database stepdir/measurements(hpcrun的输出文件)
     argv[0] = HPCPROF;
     argv[1] = "--force-metric";
     argv[2] = "--metric=thread";
@@ -509,6 +549,7 @@ static int run_hpcprof(void) {
     }
 
     /* The super-ninja test sctructure */
+    // test的输入输出和TARGET的输入输出都搞混了啊
     PERFEXPERT_ALLOC(char, test.output,
         (strlen(globals.stepdir) + strlen(HPCPROF) + 9));
     sprintf(test.output, "%s/%s.output", globals.stepdir, HPCPROF);
@@ -528,18 +569,22 @@ static int run_hpcprof(void) {
 }
 
 /* module_parse_file */
+// file：输入文件
+// profiles: 仓库名
 int perfexpert_tool_parse_file(const char *file, perfexpert_list_t *profiles) {
     xmlDocPtr  document;
     xmlNodePtr node;
     profile_t  *profile = NULL;
 
     /* Open file */
+    // 打开一个utf-8的文本文档，并返回指针
     if (NULL == (document = xmlParseFile(file))) {
         OUTPUT(("%s", _ERROR("Error: malformed XML document")));
         return PERFEXPERT_ERROR;
     }
 
     /* Check if it is not empty */
+    // 获得文档的根节点curNode
     if (NULL == (node = xmlDocGetRootElement(document))) {
         OUTPUT(("%s", _ERROR("Error: empty XML document")));
         xmlFreeDoc(document);
@@ -547,6 +592,7 @@ int perfexpert_tool_parse_file(const char *file, perfexpert_list_t *profiles) {
     }
 
     /* Check if it is a HPCToolkit experiment file */
+    // 这里说明这个文档还是来源于perfexpert的输出，hpctoolkit的输出
     if (xmlStrcmp(node->name, (const xmlChar *)"HPCToolkitExperiment")) {
         OUTPUT(("%s (%s)",
             _ERROR("Error: file is not a valid HPCToolkit experiment"), file));
@@ -558,6 +604,7 @@ int perfexpert_tool_parse_file(const char *file, perfexpert_list_t *profiles) {
     }
 
     /* Perse the document */
+    // 这个是正题，解析文档
     if (PERFEXPERT_SUCCESS != hpctoolkit_parser(document, node->xmlChildrenNode,
         profiles, NULL, NULL, 0)) {
         OUTPUT(("%s", _ERROR("Error: unable to parse experiment file")));
@@ -580,6 +627,8 @@ int perfexpert_tool_parse_file(const char *file, perfexpert_list_t *profiles) {
 }
 
 /* hpctoolkit_parser */
+// 文档指针，节点指针，信息存储链表指针，信息单元指针
+// 调用路径结构体、遍历深度
 static int hpctoolkit_parser(xmlDocPtr document, xmlNodePtr node,
     perfexpert_list_t *profiles, profile_t *profile, callpath_t *parent,
     int loopdepth) {
@@ -591,6 +640,8 @@ static int hpctoolkit_parser(xmlDocPtr document, xmlNodePtr node,
 
     while (NULL != node) {
         /* SecCallPathProfile */
+        // root->node->name = SecCallPathProfile
+        // 这里只是找到对应的目标把profile中的id和name添上
         if (!xmlStrcmp(node->name, (const xmlChar *)"SecCallPathProfile")) {
             PERFEXPERT_ALLOC(profile_t, profile, sizeof(profile_t));
             profile->cycles = 0.0;
@@ -600,6 +651,9 @@ static int hpctoolkit_parser(xmlDocPtr document, xmlNodePtr node,
             profile->metrics_by_id = NULL;
             profile->metrics_by_name = NULL;
             profile->procedures_by_id = NULL;
+            // 取出该节点的属性集合
+            // xmlChar * xmlGetProp(xmlNodePtr node, const xmlChar * name)
+            // 属性名称为"i"的存放的为profile的id
             profile->id = atoi(xmlGetProp(node, "i"));
             perfexpert_list_construct(&(profile->callees));
             perfexpert_list_construct(&(profile->hotspots));
@@ -607,6 +661,7 @@ static int hpctoolkit_parser(xmlDocPtr document, xmlNodePtr node,
 
             PERFEXPERT_ALLOC(char, profile->name,
                 (strlen(xmlGetProp(node, "n")) + 1));
+            // 属性名称为"n"的存放的为profile的名称
             strcpy(profile->name, xmlGetProp(node, "n"));
 
             OUTPUT_VERBOSE((3, "   %s [%d] (%s)", _YELLOW("profile found:"),
@@ -616,6 +671,7 @@ static int hpctoolkit_parser(xmlDocPtr document, xmlNodePtr node,
             perfexpert_list_append(profiles, (perfexpert_list_item_t *)profile);
 
             /* Call the call path profile parser */
+            // 递归了？嗯嗯！是的，遍历子节点查找
             if (PERFEXPERT_SUCCESS != hpctoolkit_parser(document,
                 node->xmlChildrenNode, profiles, profile, parent, loopdepth)) {
                 OUTPUT(("%s (%s)", _ERROR("Error: unable to parse profile"),
@@ -636,8 +692,10 @@ static int hpctoolkit_parser(xmlDocPtr document, xmlNodePtr node,
                 /* Save the entire metric name */
                 PERFEXPERT_ALLOC(char, temp_str[0],
                     (strlen(xmlGetProp(node, "n")) + 1));
+                // 第一个指针指向属性名为"n"的全部内容
                 strcpy(temp_str[0], xmlGetProp(node, "n"));
 
+                // 第二个指针指向"."之前的第一个字符串，也就是name
                 temp_str[1] = strtok(temp_str[0], ".");
                 if (NULL != temp_str[1]) {
                     /* Set the name (only the performance counter name) */
@@ -649,22 +707,27 @@ static int hpctoolkit_parser(xmlDocPtr document, xmlNodePtr node,
                         perfexpert_md5_string(metric->name));
 
                     /* Save the thread information */
+                    // 再次拆分处第二个字符串作为thread information?
                     temp_str[1] = strtok(NULL, ".");
 
                     if (NULL != temp_str[1]) {
                         /* Set the experiment */
+                        // 第三次拆分作为experiment?(什么叫experiment) 
                         temp_str[2] = strtok(NULL, ".");
                         if (NULL != temp_str[2]) {
+                            // 是个数字啊？？
                             metric->experiment = atoi(temp_str[2]);
                         } else {
                             metric->experiment = 0;                    
                         }
 
                         /* Set the MPI rank */
+                        // 以","为deli第一个是?这里没有进行存储啊，下面会被覆盖
                         temp_str[2] = strtok(temp_str[1], ",");
                         metric->mpi_rank = 0;
 
                         /* Set the thread ID */
+                        // 以","为deli第二个是thread id
                         temp_str[2] = strtok(NULL, ",");
                         if (NULL != temp_str[2]) {
                             temp_str[2][strlen(temp_str[2]) - 1] = '\0';
@@ -680,6 +743,8 @@ static int hpctoolkit_parser(xmlDocPtr document, xmlNodePtr node,
                     metric->thread, metric->experiment));
 
                 /* Hash it! */
+                // by_id，前面分析lcpi和machine文件时是by_name
+                // 访问的是同一个hash表吗？
                 perfexpert_hash_add_int(profile->metrics_by_id, id, metric);
             }
         }

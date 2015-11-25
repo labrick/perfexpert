@@ -81,6 +81,7 @@ typedef struct metric {
 } metric_t;
 
 /* Structure to hold procedures */
+// 这里的procedure也就是函数的意思了
 typedef struct procedure {
     volatile perfexpert_list_item_t *next;
     volatile perfexpert_list_item_t *prev;
@@ -104,6 +105,7 @@ typedef struct procedure {
 } procedure_t;
 
 /* Structure to hold loops */
+// 保存循环的结构体
 typedef struct loop {
     volatile perfexpert_list_item_t *next;
     volatile perfexpert_list_item_t *prev;
@@ -126,16 +128,17 @@ typedef struct loop {
 } loop_t;
 
 /* Structure to hold the call path */
+// 保存调用路径的结构体？
 typedef struct callpath callpath_t;
 struct callpath {
     volatile perfexpert_list_item_t *next;
     volatile perfexpert_list_item_t *prev;
-    perfexpert_list_t callees;
+    perfexpert_list_t callees;  // profile中也包含了这个元素，有区别？
     int id;
     int scope;
     int alien;
-    callpath_t *parent;
-    procedure_t *procedure;
+    callpath_t *parent; // 这个方便循环
+    procedure_t *procedure; // 这个好理解，存放procedure和loop
 };
 
 /* Structure to hold profiles */
@@ -152,6 +155,7 @@ typedef struct profile {
     metric_t *metrics_by_id;
     metric_t *metrics_by_name;
     procedure_t *procedures_by_id;
+    // 存储hotspot信息的链表指针
     perfexpert_list_t hotspots; /* for both procedure_t and loop_t */
 } profile_t;
 

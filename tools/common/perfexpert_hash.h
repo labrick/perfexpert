@@ -735,7 +735,9 @@ typedef struct UT_hash_handle {
     HASH_FIND(hh_ptr, head, findptr, sizeof(void *), out)
 
 #define perfexpert_hash_add(_1, _2, _3, _4) HASH_ADD(hh, _1, _2, _3, _4)
-// 你干了什么啊？？？
+// head: hash表的首地址
+// strfield: hash表的key值
+// add: 向hash表中所要添加的信息
 #define perfexpert_hash_add_str(head, strfield, add) \
     HASH_ADD(hh_str, head, strfield, strlen(add->strfield), add)
 #define perfexpert_hash_add_int(head, intfield, add) \

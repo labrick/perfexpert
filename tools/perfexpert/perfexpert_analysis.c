@@ -46,10 +46,11 @@ int analysis(void) {
     OUTPUT(("%s", _YELLOW("Analysing measurements")));
 
     /* Set some environment variables to avoid working arguments */
-    // 这里设置了环境变量
+    // 这里设置了环境变量，目的就是为ayalyzer提供参数
     // $PERFEXPERT_ANALYZER_VERBOSE_LEVEL = globals.verbose
     bzero(temp_str[1], BUFFER_SIZE);
-    sprintf(temp_str[1], "%d", globals.verbose);
+    sprintf(temp_str[1], "%d", globals.verbose);    // 信息详细程度
+    // setenv 最后一参数是是否覆盖之前值的意思
     if (0 != setenv("PERFEXPERT_ANALYZER_VERBOSE_LEVEL", temp_str[1], 0)) {
         OUTPUT(("%s", _ERROR("Error: unable to set environment variable")));
         return PERFEXPERT_ERROR;
@@ -115,7 +116,7 @@ int analysis(void) {
     // 运行了../analyzer/analyzer_main.c程序
     // 这里也就是说根本就没有给analyzer传递参数
     // 这里的参数不是通过globals传递，因为这里的globals analyzer是无法访问的
-    // 它访问的只是其自身的globals
+    // 它访问的只是其自身的globals，参数只是通过环境变量进行传递
     argv[0] = ANALYZER_PROGRAM;
     argv[1] = NULL;
 
