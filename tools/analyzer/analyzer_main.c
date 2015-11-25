@@ -119,7 +119,8 @@ int main(int argc, char **argv) {
     }
 
     /* Parse input file */
-	// profile是个什么东东？？这个分析有点意思，用了一个工具，但又不知道怎么用的
+    // profiles是个大仓库，工具是通过perfexpert_load_module加载库文件，然后调用函数
+    // 这里也就是解析hpctoolkit的输出xml文件，然后把值放入profiles链表
     if (PERFEXPERT_SUCCESS != profile_parse_file(globals.inputfile,
         globals.tool, &profiles)) {
         OUTPUT(("%s (%s)", _ERROR("Error: unable to parse input file"),
