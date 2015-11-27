@@ -385,6 +385,7 @@ int profile_check_all(perfexpert_list_t *profiles) {
                     profile->name));
                 return PERFEXPERT_ERROR;
            }
+           // 如果callees->size > 0,有热点存在，做标记
            globals.found_hotspots = PERFEXPERT_TRUE;
         }
         profile = (profile_t *)perfexpert_list_get_next(profile);
