@@ -33,6 +33,8 @@ extern "C" {
 #include "perfexpert_list.h"
 
 /* Sorting orders */
+// 这个数组建的很有技巧性，值得学习下
+// sort_t类型的数组
 static sort_t orders[] = {
     {"relevance",   &sort_by_relevance},
     {"performance", &sort_by_performance},
@@ -48,6 +50,7 @@ int hotspot_sort(perfexpert_list_t *profiles) {
     OUTPUT_VERBOSE((2, "%s", _BLUE("Sorting hotspots")));
 
     /* Find the sorting function for the requested order */
+    // 这里有个函数指针数组的技巧
     while (NULL != orders[i].name) {
         if (0 == strcmp(globals.order, orders[i].name)) {
             /* For each profile in the list of profiles... */
@@ -91,9 +94,11 @@ static int sort_by_relevance(profile_t *profile) {
 
     perfexpert_list_construct(&sorted);
 
+    // 类似于冒泡排序法按照hotspots->procedure->importance进行排序
     for (h = (procedure_t *)perfexpert_list_get_first(&(profile->hotspots));
         0 < perfexpert_list_get_size(&(profile->hotspots));
         h = (procedure_t *)perfexpert_list_get_first(&(profile->hotspots))) {
+        // 该次循环后，h还是指向第一个procedure，构建多次遍历
 
         relevance_max = -1;
         h_max = h;
@@ -113,6 +118,7 @@ static int sort_by_relevance(profile_t *profile) {
             (perfexpert_list_item_t *)h_max);
 
         /* Append h_max to sorted list */
+        // 最后全部加入另外一个procedure_t结构体中sorted
         perfexpert_list_append(&sorted, (perfexpert_list_item_t *)h_max);
     }
 
@@ -164,6 +170,7 @@ static int sort_by_performance(profile_t *profile) {
         h2 = (procedure_t *)h2->next;
         for (i = 0; i < perfexpert_list_get_size(&(profile->hotspots)) - 1;
             h2 = (procedure_t *)perfexpert_list_get_next(h2), i++) {
+            // 从hash表中获得的是什么？字面意思是什么总体最差
             if (worst_overall <= perfexpert_lcpi_hotspot_get(h2, "overall")) {
                 worst_overall = perfexpert_lcpi_hotspot_get(h2, "overall");
                 h_max = h2;
@@ -223,6 +230,7 @@ static int sort_by_mixed(profile_t *profile) {
         h_max = h;
 
         /* Find the highest importance */
+        // 这里根据hash表中信息*importance进行排序(对上述两者的结合)
         h2 = (procedure_t *)perfexpert_list_get_first(&(profile->hotspots));
         h2 = (procedure_t *)h2->next;
         for (i = 0; i < perfexpert_list_get_size(&(profile->hotspots)) - 1;
