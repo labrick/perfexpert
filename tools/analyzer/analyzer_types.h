@@ -90,7 +90,7 @@ typedef struct procedure {
     int  line;
     int  valid;
     double variance;
-    double importance;
+    double importance;      // 这个才是确定瓶颈的关键所在，和module_t中有什么却别？
     double instructions;
     double cycles;
     enum hotspot_type_t type;
@@ -101,7 +101,7 @@ typedef struct procedure {
     /* From this point this struct is different than loop_t */
     perfexpert_hash_handle_t hh_int;
     module_t *module;
-    file_t *file;
+    file_t *file;           // procedure所属文件
 } procedure_t;
 
 /* Structure to hold loops */
@@ -123,7 +123,7 @@ typedef struct loop {
     metric_t *metrics_by_name;
     perfexpert_list_t metrics;
     /* From this point this struct is different than procedure_t */
-    procedure_t *procedure;
+    procedure_t *procedure;         // 该循环属于哪个procedure
     int  depth;
 } loop_t;
 

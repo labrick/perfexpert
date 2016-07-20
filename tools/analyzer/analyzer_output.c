@@ -83,12 +83,15 @@ int output_analysis_all(perfexpert_list_t *profiles) {
     profile = (profile_t *)perfexpert_list_get_first(profiles);
     while ((perfexpert_list_item_t *)profile != &(profiles->sentinel)) {
         /* Print total runtime for this profile */
+        // 在所有核上总体的运行时间
         PRETTY_PRINT(79, "-");
         fprintf(globals.outputfile_FP,
             "Total running time for %s is %.2f seconds between all %d cores\n",
             _CYAN(profile->name),
             profile->cycles / perfexpert_machine_get("CPU_freq"),
             (int)sysconf(_SC_NPROCESSORS_ONLN));
+
+        // 平均每核运行时间？？
         fprintf(globals.outputfile_FP,
             "The wall-clock time for %s is approximately %.2f seconds\n\n",
             _CYAN(profile->name), (profile->cycles /
@@ -96,9 +99,13 @@ int output_analysis_all(perfexpert_list_t *profiles) {
                 sysconf(_SC_NPROCESSORS_ONLN)));
 
         /* For each module in the profile's list of modules... */
+        // 下面这个算什么？函数？还是其他什么？
         perfexpert_hash_iter_int(profile->modules_by_id, module, module_temp) {
+            // 重要性的计算公式：模块的周期数 / 整个profile的周期数
+            // 这里的module是不是就是指func或者loops，属于procedure的成员
             module->importance = module->cycles / profile->cycles;
 
+            // module占总运行时间的百分比，有什么用？
             fprintf(globals.outputfile_FP,
                 "Module %s takes %.2f%% of the total runtime\n",
                 _MAGENTA(module->shortname), module->importance * 100);
@@ -111,7 +118,9 @@ int output_analysis_all(perfexpert_list_t *profiles) {
             &(profile->hotspots));
         while ((perfexpert_list_item_t *)hotspot !=
             &(profile->hotspots.sentinel)) {
+            // procedure_t->importance这个才是确定瓶颈的关键所在
             if (globals.threshold <= hotspot->importance) {
+                // hotspot输出
                 if (PERFEXPERT_SUCCESS != output_analysis(profile, hotspot)) {
                     OUTPUT(("%s (%s)",
                         _ERROR("Error: printing hotspot analysis"),
@@ -138,7 +147,9 @@ static int output_analysis(profile_t *profile, procedure_t *hotspot) {
 
     /* Print the runtime of this hotspot */
     switch (hotspot->type) {
+        // 程序和后两者的区别是什么？
         case PERFEXPERT_HOTSPOT_PROGRAM:
+            // *100就是运行时间？
             fprintf(globals.outputfile_FP,
                 "Aggregate (%.2f%% of the total runtime)\n",
                 hotspot->importance * 100);
@@ -151,6 +162,7 @@ static int output_analysis(profile_t *profile, procedure_t *hotspot) {
                 hotspot->importance * 100);
             break;
 
+        // 从这里可以看出结构之间的大概关系
         case PERFEXPERT_HOTSPOT_LOOP:
             fprintf(globals.outputfile_FP,
                 "Loop in function %s in %s:%d (%.2f%% of the total runtime)\n",
@@ -215,7 +227,7 @@ static int output_analysis(profile_t *profile, procedure_t *hotspot) {
 
         /* Format LCPI description */
         bzero(description, 24);
-        if (NULL != strstr(lcpi->name, "overall")) {
+        if (NULL != strstr(lcpi->name, "overall")) {// 是子串
             sprintf(description, "* %s", category);
         } else {
             sprintf(description, " - %s", subcategory);
